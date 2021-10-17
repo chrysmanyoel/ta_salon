@@ -1,0 +1,38 @@
+class ClassLayananWithUsers {
+  String id,
+      username,
+      namalayanan,
+      peruntukan,
+      jenjangusia,
+      kategori,
+      hargapriadewasa,
+      harganwanitadewasa,
+      hargawanitaanak,
+      hargapriaanak,
+      durasi,
+      deskripsi,
+      foto,
+      alamat,
+      kota,
+      telp,
+      status;
+
+  ClassLayananWithUsers(
+      this.id,
+      this.username,
+      this.namalayanan,
+      this.peruntukan,
+      this.kategori,
+      this.jenjangusia,
+      this.hargapriadewasa,
+      this.harganwanitadewasa,
+      this.hargawanitaanak,
+      this.hargapriaanak,
+      this.durasi,
+      this.deskripsi,
+      this.foto,
+      this.alamat,
+      this.kota,
+      this.telp,
+      this.status);
+}

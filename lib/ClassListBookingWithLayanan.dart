@@ -1,0 +1,36 @@
+class ClassListBookingWithLayanan {
+  String id,
+      tanggal,
+      username,
+      namauser,
+      usernamesalon,
+      idservice,
+      tanggalbooking,
+      jambooking,
+      requestpegawai,
+      total,
+      namalayanan,
+      status,
+      pembayaran,
+      foto,
+      jambookingselesai,
+      total_cancel;
+
+  ClassListBookingWithLayanan(
+      this.id,
+      this.tanggal,
+      this.username,
+      this.namauser,
+      this.usernamesalon,
+      this.idservice,
+      this.tanggalbooking,
+      this.jambooking,
+      this.requestpegawai,
+      this.total,
+      this.namalayanan,
+      this.status,
+      this.pembayaran,
+      this.foto,
+      this.jambookingselesai,
+      this.total_cancel);
+}
