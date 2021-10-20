@@ -15,6 +15,7 @@ import 'profile_menu.dart';
 import 'dart:io';
 import 'ClassGetJadwalSalon.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
@@ -57,19 +58,22 @@ class JamKerjaSalonState extends State<JamKerjaSalon> {
 
   void initState() {
     super.initState();
-    setState(() {});
+    setState(() {
+      arr.add(new ClassGetJadwalSalon("id", "idsalon", "hari", "0", "0"));
+    });
     getjadwalsalon();
     print("ini id salon yg login : " + main_variable.idsalonlogin);
   }
 
   Future<ClassGetJadwalSalon> getjadwalsalon() async {
+    List<ClassGetJadwalSalon> arrtemp = new List();
     Map paramData = {
       'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
 
     http
-        .post(main_variable.ipnumber + "/getjadwalsalon",
+        .post(main_variable.ipnumber + "/getjadwalsalon_set",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
       var data = json.decode(res.body);
@@ -84,61 +88,61 @@ class JamKerjaSalonState extends State<JamKerjaSalon> {
             data[i]['hari'].toString(),
             data[i]['jambuka'].toString(),
             data[i]['jamtutup'].toString());
-        this.arr.add(databaru);
+        arrtemp.add(databaru);
 
         //senin
-        if (arr[i].hari == "senin" && arr[i].jambuka != null) {
-          myTimeSeninbuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "senin" && arrtemp[i].jambuka != null) {
+          myTimeSeninbuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "senin" && arr[i].jamtutup != null) {
-          myTimeSenintutup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "senin" && arrtemp[i].jamtutup != null) {
+          myTimeSenintutup.text = arrtemp[i].jamtutup.toString();
         }
         //selasa
-        if (arr[i].hari == "selasa" && arr[i].jambuka != null) {
-          myTimeSelasabuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "selasa" && arrtemp[i].jambuka != null) {
+          myTimeSelasabuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "selasa" && arr[i].jamtutup != null) {
-          myTimeSelasatutup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "selasa" && arrtemp[i].jamtutup != null) {
+          myTimeSelasatutup.text = arrtemp[i].jamtutup.toString();
         }
         //rabu
-        if (arr[i].hari == "rabu" && arr[i].jambuka != null) {
-          myTimeRabubuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "rabu" && arrtemp[i].jambuka != null) {
+          myTimeRabubuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "rabu" && arr[i].jamtutup != null) {
-          myTimeRabututup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "rabu" && arrtemp[i].jamtutup != null) {
+          myTimeRabututup.text = arrtemp[i].jamtutup.toString();
         }
         //kamis
-        if (arr[i].hari == "kamis" && arr[i].jambuka != null) {
-          myTimeKamisbuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "kamis" && arrtemp[i].jambuka != null) {
+          myTimeKamisbuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "kamis" && arr[i].jamtutup != null) {
-          myTimeKamistutup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "kamis" && arrtemp[i].jamtutup != null) {
+          myTimeKamistutup.text = arrtemp[i].jamtutup.toString();
         }
         //jumat
-        if (arr[i].hari == "jumat" && arr[i].jambuka != null) {
-          myTimeJumatbuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "jumat" && arrtemp[i].jambuka != null) {
+          myTimeJumatbuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "jumat" && arr[i].jamtutup != null) {
-          myTimeJumattutup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "jumat" && arrtemp[i].jamtutup != null) {
+          myTimeJumattutup.text = arrtemp[i].jamtutup.toString();
         }
         //sabtu
-        if (arr[i].hari == "sabtu" && arr[i].jambuka != null) {
-          myTimeSabtubuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "sabtu" && arrtemp[i].jambuka != null) {
+          myTimeSabtubuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "sabtu" && arr[i].jamtutup != null) {
-          myTimeSabtututup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "sabtu" && arrtemp[i].jamtutup != null) {
+          myTimeSabtututup.text = arrtemp[i].jamtutup.toString();
         }
         //minggu
-        if (arr[i].hari == "minggu" && arr[i].jambuka != null) {
-          myTimeMinggubuka.text = arr[i].jambuka.toString();
+        if (arrtemp[i].hari == "minggu" && arrtemp[i].jambuka != null) {
+          myTimeMinggubuka.text = arrtemp[i].jambuka.toString();
         }
-        if (arr[i].hari == "minggu" && arr[i].jamtutup != null) {
-          myTimeMinggututup.text = arr[i].jamtutup.toString();
+        if (arrtemp[i].hari == "minggu" && arrtemp[i].jamtutup != null) {
+          myTimeMinggututup.text = arrtemp[i].jamtutup.toString();
         }
       }
-      setState(() => this.arr = arr);
+      setState(() => this.arr = arrtemp);
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
@@ -2108,11 +2112,13 @@ class JamKerjaSalonState extends State<JamKerjaSalon> {
                             updatejadwalsalonjumat();
                             updatejadwalsalonsabtu();
                             updatejadwalsalonminggu();
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Dashboardsalon(),
-                                ));
+                            Fluttertoast.showToast(
+                                msg: "Berhasil Upload Jadwal Salon",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                backgroundColor: Colors.blue,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
                           },
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(80.0)),

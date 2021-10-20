@@ -26,24 +26,53 @@ class IklanSalon extends StatefulWidget {
 
 class IklanSalonState extends State<IklanSalon> {
   NumberFormat numberFormat = NumberFormat(',000');
-  TextEditingController myFoto = new TextEditingController();
-  List<ClassSalon> arrsalon1 = new List();
-  String namasalonkirim, kotakrim;
-  String foto = main_variable.ipnumber + "/gambar/default.png";
+
   TextEditingController myTanggal = new TextEditingController();
   TextEditingController JumlahHari = new TextEditingController();
+  TextEditingController myFoto = new TextEditingController();
+
   int hargaiklan = 30000;
+
   File _image;
+
   DateTime selectedDate = DateTime.now();
   DateTime selectedDateAkhir = DateTime.now();
+
   List<ClassUser> arr = new List();
   List<ClassIklan> arriklan = new List();
   List<ClassIklan> arriklanacc = new List();
+  List<ClassSalon> arrsalon1 = new List();
+
+  String namasalonkirim, kotakrim;
+  String foto = main_variable.ipnumber + "/gambar/default.png";
+
   bool ada = null;
 
   void initState() {
     super.initState();
     print("ini usr salon dari main_var : " + main_variable.userlogin);
+    setState(() {
+      arrsalon1.add(new ClassSalon("id", "username", "namasalon", "alamat",
+          "kota", "telp", "0", "0", "keterangan", "status"));
+      arriklanacc.add(new ClassIklan("idiklan", "tanggal", "username", "0",
+          "tanggal_awal", "tanggal_akhir", "default.pgn", "status"));
+      arriklan.add(new ClassIklan("idiklan", "tanggal", "username", "0",
+          "tanggal_awal", "tanggal_akhir", "default", "status"));
+      arr.add(new ClassUser(
+          "email",
+          "username",
+          "password",
+          "nama",
+          "alamat",
+          "kota",
+          "telp",
+          "default.png",
+          "0",
+          "tgllahir",
+          "jeniskelamin",
+          "role",
+          "status"));
+    });
     getidsalon();
     getiklan();
     getiklan_admin_acc();
@@ -87,7 +116,7 @@ class IklanSalonState extends State<IklanSalon> {
   }
 
   Future<ClassIklan> getiklan_admin_acc() async {
-    arriklanacc.clear();
+    List<ClassIklan> arrtemp = new List();
     Map paramData = {};
     var parameter = json.encode(paramData);
 
@@ -111,10 +140,7 @@ class IklanSalonState extends State<IklanSalon> {
           data[i]['foto'].toString(),
           data[i]['status'].toString(),
         );
-
-        setState(() {
-          this.arriklanacc.add(databaru);
-        });
+        arrtemp.add(databaru);
 
         if (data[i]['username'].toString() ==
             main_variable.userlogin.toString()) {
@@ -125,16 +151,18 @@ class IklanSalonState extends State<IklanSalon> {
         // print("data i : " + data[i]['username'].toString());
         // print("data mainvar : " + main_variable.userlogin.toString());
       }
-      print("object");
-      print("ini bool ada : " + ada.toString());
+      setState(() {
+        this.arriklanacc = arrtemp;
+      });
 
-      return arriklanacc;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
   Future<ClassIklan> getiklan() async {
+    List<ClassIklan> arrtemp = new List();
     Map paramData = {
       'username': main_variable.userlogin,
     };
@@ -161,32 +189,27 @@ class IklanSalonState extends State<IklanSalon> {
             data[i]['foto'].toString(),
             data[i]['status'].toString(),
           );
-
-          // if (data[i]['username' == main_variable.userlogin]) {
-          //   ada = true;
-          // } else {
-          //   ada = false;
-          // }
-          // print("ini bool ada : " + ada.toString());
-          setState(() {
-            this.arriklan.add(databaru);
-          });
+          arrtemp.add(databaru);
         }
       } else {
         ClassIklan databaru = new ClassIklan('-', '-', '-', '-',
             'Tidak Mempunyai Iklan', 'Tidak Mempunyai Iklan', '-', '-');
         setState(() {
-          this.arriklan.add(databaru);
+          arrtemp.add(databaru);
         });
       }
+      setState(() {
+        this.arriklan = arrtemp;
+      });
 
-      return arriklan;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
-  Future<String> getidsalon() async {
+  Future<ClassSalon> getidsalon() async {
+    List<ClassSalon> arrtemp = new List();
     Map paramData = {
       'username': main_variable.userlogin,
     };
@@ -214,12 +237,12 @@ class IklanSalonState extends State<IklanSalon> {
           data[i]['keterangan'].toString(),
           data[i]['status'].toString(),
         );
-        this.arrsalon1.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arrsalon1 = arrsalon1);
-      setState(() => main_variable.idsalonlogin = arrsalon1[0].id.toString());
+      setState(() => this.arrsalon1 = arrtemp);
+      setState(() => main_variable.idsalonlogin = arrtemp[0].id.toString());
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
@@ -300,7 +323,7 @@ class IklanSalonState extends State<IklanSalon> {
                 Stack(
                   children: <Widget>[
                     Container(
-                      height: 120,
+                      height: 130,
                       width: 400,
                       decoration: BoxDecoration(
 //                          borderRadius: BorderRadius.circular(20),
@@ -333,8 +356,22 @@ class IklanSalonState extends State<IklanSalon> {
                       ),
                     ),
                     Positioned(
+                      left: 30,
+                      top: 10,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(
+                          Icons.keyboard_backspace,
+                          size: 32,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Positioned(
                       left: 20.0,
-                      top: 50,
+                      top: 60,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[

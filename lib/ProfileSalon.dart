@@ -32,6 +32,21 @@ class ProfileSalonState extends State<ProfileSalon> {
 
   void initState() {
     super.initState();
+
+    arr.add(new ClassUser(
+        "email",
+        "username",
+        "password",
+        "nama",
+        "alamat",
+        "kota",
+        "telp",
+        "default.png",
+        "0",
+        "tgllahir",
+        "jeniskelamin",
+        "role",
+        "status"));
     getuser();
   }
 
@@ -59,7 +74,8 @@ class ProfileSalonState extends State<ProfileSalon> {
     String basenamegallery = basename(namaFile);
   }
 
-  Future<String> getuser() async {
+  Future<ClassUser> getuser() async {
+    List<ClassUser> arrtemp = new List();
     Map paramData = {
       'username': main_variable.userlogin,
     };
@@ -89,15 +105,15 @@ class ProfileSalonState extends State<ProfileSalon> {
             data[i]['jeniskelamin'].toString(),
             data[i]['role'].toString(),
             data[i]['status'].toString());
-        this.arr.add(databaru);
-        foto = main_variable.ipnumber + "/gambar/" + arr[i].foto;
-        nama = arr[i].nama;
-        email = arr[i].email;
-        role = arr[i].role;
+        arrtemp.add(databaru);
+        foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
+        nama = arrtemp[i].nama;
+        email = arrtemp[i].email;
+        role = arrtemp[i].role;
       }
-      setState(() => this.arr = arr);
+      setState(() => this.arr = arrtemp);
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });

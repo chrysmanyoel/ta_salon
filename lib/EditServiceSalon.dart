@@ -1,7 +1,6 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:ta_salon/ClassPilihJenjangPeruntukan.dart';
 import 'main_variable.dart' as main_variable;
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -49,19 +48,24 @@ extension CapExtension on String {
 
 class EditServiceSalonState extends State<EditServiceSalon> {
   NumberFormat numberFormat = NumberFormat(',000');
+
   String cekpembayaran = "";
-  bool _like = false;
-  ClassPegawai selectarrpeg = null;
   String namaservicekirim, idservice, kotakrim, total = "0", kodelayanan;
+
+  bool _like = false;
+
+  ClassPegawai selectarrpeg = null;
+  ClassPilihJenjangPeruntukan selectedarr = null;
   EditServiceSalonState(
       this.namaservicekirim, this.idservice, this.kodelayanan);
+
   List<ClassLayanansalon> arr = new List();
   List<ClassBookingService> arrbooking = new List();
   List<ClassPilihJenjangPeruntukan> arrjenjangperuntukan = new List();
   List<ClassPegawai> arrpegawai = new List();
-  int saldo = 0;
   List<ClassUser> arrsaldo = new List();
-  ClassPilihJenjangPeruntukan selectedarr = null;
+
+  int saldo = 0;
 
   String peruntukan = "";
   String jenjang = "";
@@ -91,6 +95,53 @@ class EditServiceSalonState extends State<EditServiceSalon> {
 
   void initState() {
     super.initState();
+
+    setState(() {
+      arrsaldo.add(new ClassUser(
+          "email",
+          "username",
+          "password",
+          "nama",
+          "alamat",
+          "kota",
+          "telp",
+          "foto",
+          "0",
+          "tgllahir",
+          "jeniskelamin",
+          "role",
+          "status"));
+      arrjenjangperuntukan
+          .add(new ClassPilihJenjangPeruntukan("jenjang", "peruntukan", "0"));
+      arrbooking.add(new ClassBookingService(
+          "id",
+          "tanggal",
+          "username",
+          "namauser",
+          "usernamesalon",
+          '0',
+          'tanggalbooking',
+          "jambooking",
+          "requestpegawai",
+          "0",
+          'usernamecancel',
+          "status",
+          "pembayaran"));
+      arr.add(new ClassLayanansalon(
+          "id",
+          "username",
+          "namalayanan",
+          "peruntukan",
+          "kategori",
+          "jenjangusia",
+          "0",
+          "deskripsi",
+          "status",
+          "hargapriadewasa",
+          "0",
+          "0",
+          '0'));
+    });
     getlayanansalondetail();
     getperuntukanjenjang();
     getpegawai_halamanmember();
@@ -331,6 +382,7 @@ class EditServiceSalonState extends State<EditServiceSalon> {
   }
 
   Future<ClassLayanansalon> getlayanansalondetail() async {
+    List<ClassLayanansalon> arrtemp = new List();
     Map paramData = {
       'username': main_variable.usernamesalon,
       'namalayanan': namaservicekirim.toString(),
@@ -361,11 +413,11 @@ class EditServiceSalonState extends State<EditServiceSalon> {
             data[i]['hargawanitadewasa'].toString(),
             data[i]['hargapriaanak'].toString(),
             data[i]['hargawanitaanak'].toString());
-        this.arr.add(databaru);
+        arrtemp.add(databaru);
       }
 
       setState(() {
-        this.arr = arr;
+        this.arr = arrtemp;
         // radiovalue => pria = 0    || wanita = 1    || semua = 2
         // radiovalue1 => dewasa = 0 || anak-anak = 1 || semua = 2
         if (arr[0].peruntukan == "wanita" && arr[0].jenjangusia == "semua") {
@@ -418,13 +470,14 @@ class EditServiceSalonState extends State<EditServiceSalon> {
       });
       print("nangka");
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
   Future<ClassPilihJenjangPeruntukan> getperuntukanjenjang() async {
+    List<ClassPilihJenjangPeruntukan> arrtemp = new List();
     Map paramData = {
       'username': main_variable.usernamesalon,
       'namalayanan': namaservicekirim.toString(),
@@ -463,21 +516,22 @@ class EditServiceSalonState extends State<EditServiceSalon> {
           ClassPilihJenjangPeruntukan databaru =
               new ClassPilihJenjangPeruntukan(
                   "Anak", "Laki-Laki", data[i]['hargapriaanak'].toString());
-          this.arrjenjangperuntukan.add(databaru);
+          arrtemp.add(databaru);
         }
       }
 
       setState(() {
-        this.arrjenjangperuntukan = arrjenjangperuntukan;
+        this.arrjenjangperuntukan = arrtemp;
       });
       print("aple");
 
-      return arrjenjangperuntukan;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
+//INI UNTUK UPDATE DATA SERVICE SALON BUKAN INSERTBOOKING
   Future<ClassBookingService> insertbookingservice() async {
     Map paramData = {
       // 'username': main_variable.userlogin,
@@ -528,6 +582,7 @@ class EditServiceSalonState extends State<EditServiceSalon> {
   }
 
   Future<ClassPegawai> getpegawai_halamanmember() async {
+    List<ClassPegawai> arrtemp = new List();
     Map paramData = {
       'idsalon': main_variable.idsalonlogin,
       'kodelayanan': kodelayanan,
@@ -551,11 +606,11 @@ class EditServiceSalonState extends State<EditServiceSalon> {
             data[i]['alamat'].toString(),
             data[i]['telp'].toString(),
             data[i]['status'].toString());
-        this.arrpegawai.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arrpegawai = arrpegawai);
+      setState(() => this.arrpegawai = arrtemp);
 
-      return arrpegawai;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
@@ -656,6 +711,7 @@ class EditServiceSalonState extends State<EditServiceSalon> {
                                   //   status = "";
                                   //   Navigator.pop(context);
                                   // }
+                                  Navigator.pop(context);
 
                                   print("Tidak");
                                 },

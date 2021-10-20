@@ -20,16 +20,38 @@ class AccSaldo extends StatefulWidget {
 
 class AccSaldoState extends State<AccSaldo> {
   NumberFormat numberFormat = NumberFormat(',000');
+
   TextEditingController myFoto = new TextEditingController();
+
   List<ClassSalon> arrsalon1 = new List();
+  List<ClassUser> arr = new List();
+
   String namasalonkirim, kotakrim;
   String foto = main_variable.ipnumber + "/gambar/default.png";
+
   File _image;
-  List<ClassUser> arr = new List();
 
   void initState() {
     super.initState();
     print("ini usr salon dari main_var : " + main_variable.userlogin);
+    setState(() {
+      arrsalon1.add(new ClassSalon("id", "username", "namasalon", "alamat",
+          "kota", "telp", "0", "0", "keterangan", "status"));
+      arr.add(new ClassUser(
+          "email",
+          "username",
+          "password",
+          "nama",
+          "alamat",
+          "kota",
+          "telp",
+          "default.png",
+          "0",
+          "tgllahir",
+          "jeniskelamin",
+          "role",
+          "status"));
+    });
     getidsalon();
   }
 
@@ -43,7 +65,8 @@ class AccSaldoState extends State<AccSaldo> {
     String basenamegallery = basename(namaFile);
   }
 
-  Future<String> getidsalon() async {
+  Future<ClassSalon> getidsalon() async {
+    List<ClassSalon> arrtemp = new List();
     Map paramData = {
       'username': main_variable.usernamesalon,
     };
@@ -71,12 +94,12 @@ class AccSaldoState extends State<AccSaldo> {
           data[i]['keterangan'].toString(),
           data[i]['status'].toString(),
         );
-        this.arrsalon1.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arrsalon1 = arrsalon1);
-      setState(() => main_variable.idsalonlogin = arrsalon1[0].id.toString());
+      setState(() => this.arrsalon1 = arrtemp);
+      setState(() => main_variable.idsalonlogin = arrtemp[0].id.toString());
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });

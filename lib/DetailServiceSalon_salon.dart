@@ -44,32 +44,88 @@ extension CapExtension on String {
 
 class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
   NumberFormat numberFormat = NumberFormat(',000');
+
   String cekpembayaran = "";
-  bool _like = false;
-  ClassPegawai selectarrpeg = null;
   String namaservicekirim, idservice, kotakrim, total = "0", kodelayanan;
+  String tgl, jam, reqmua, pembayarankirim = "";
   DetailServiceSalon_salonState(
       this.namaservicekirim, this.idservice, this.kodelayanan);
+
+  bool _like = false;
+
+  ClassPegawai selectarrpeg = null;
+
   List<ClassLayanansalon> arr = new List();
   List<ClassBookingService> arrbooking = new List();
   List<ClassPilihJenjangPeruntukan> arrjenjangperuntukan = new List();
   List<ClassPegawai> arrpegawai = new List();
-  int saldo = 0;
   List<ClassUser> arrsaldo = new List();
-  ClassPilihJenjangPeruntukan selectedarr = null;
-  String tgl, jam, reqmua, pembayarankirim = "";
+
+  int saldo = 0;
   int _radioValue = 0;
+
+  ClassPilihJenjangPeruntukan selectedarr = null;
+  ClassLayanansalon datalama =
+      new ClassLayanansalon("", "", "", "", "", "", "", "", "", "", "", "", "");
+
   TextEditingController myTgl = new TextEditingController();
   TextEditingController myTime = new TextEditingController();
   TextEditingController myMua = new TextEditingController();
   TextEditingController myNamauser = new TextEditingController();
+
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = new TimeOfDay.now();
-  ClassLayanansalon datalama =
-      new ClassLayanansalon("", "", "", "", "", "", "", "", "", "", "", "", "");
 
   void initState() {
     super.initState();
+    setState(() {
+      arrsaldo.add(new ClassUser(
+          "email",
+          "username",
+          "password",
+          "nama",
+          "alamat",
+          "kota",
+          "telp",
+          "foto",
+          "0",
+          "tgllahir",
+          'jeniskelamin',
+          "role",
+          "status"));
+      arrpegawai
+          .add(new ClassPegawai("id", "0", "nama", "alamat", "telp", "status"));
+      arrjenjangperuntukan
+          .add(new ClassPilihJenjangPeruntukan("jenjang", "peruntukan", "0"));
+      arrbooking.add(new ClassBookingService(
+          "id",
+          "tanggal",
+          "username",
+          "namauser",
+          "usernamesalon",
+          "0",
+          "tanggalbooking",
+          "jambooking",
+          "requestpegawai",
+          "0",
+          "usernamecancel",
+          "status",
+          "pembayaran"));
+      arr.add(new ClassLayanansalon(
+          "id",
+          "username",
+          "namalayanan",
+          "peruntukan",
+          "kategori",
+          "jenjangusia",
+          "0",
+          "deskripsi",
+          "status",
+          "0",
+          "0",
+          "0",
+          "0"));
+    });
     getlayanansalondetail();
     getperuntukanjenjang();
     getsaldouser();
@@ -158,12 +214,12 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
       });
   }
 
-  Future<String> getsaldouser() async {
+  Future<ClassUser> getsaldouser() async {
+    List<ClassUser> arrtemp = new List();
     Map paramData = {
       'username': main_variable.userlogin,
     };
     var parameter = json.encode(paramData);
-    this.arr.clear();
     http
         .post(main_variable.ipnumber + "/getsaldouser",
             headers: {"Content-Type": "application/json"}, body: parameter)
@@ -188,25 +244,25 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
             data[i]['jeniskelamin'].toString(),
             data[i]['role'].toString(),
             data[i]['status'].toString());
-        this.arrsaldo.add(databaru);
-        saldo = int.parse(arrsaldo[i].saldo);
+        arrtemp.add(databaru);
+        saldo = int.parse(arrtemp[i].saldo);
       }
 
-      setState(() => this.arrsaldo = arrsaldo);
+      setState(() => this.arrsaldo = arrtemp);
 
-      return arrsaldo;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
-  Future<String> getlayanansalondetail() async {
+  Future<ClassLayanansalon> getlayanansalondetail() async {
+    List<ClassLayanansalon> arrtemp = new List();
     Map paramData = {
       'username': main_variable.usernamesalon,
       'namalayanan': namaservicekirim.toString(),
     };
     var parameter = json.encode(paramData);
-    this.arr.clear();
     http
         .post(main_variable.ipnumber + "/getlayanansalondetail",
             headers: {"Content-Type": "application/json"}, body: parameter)
@@ -231,23 +287,23 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
             data[i]['hargawanitadewasa'].toString(),
             data[i]['hargapriaanak'].toString(),
             data[i]['hargawanitaanak'].toString());
-        this.arr.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arr = arr);
+      setState(() => this.arr = arrtemp);
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
   }
 
-  Future<String> getperuntukanjenjang() async {
+  Future<ClassPilihJenjangPeruntukan> getperuntukanjenjang() async {
+    List<ClassPilihJenjangPeruntukan> arrtemp = new List();
     Map paramData = {
       'username': main_variable.usernamesalon,
       'namalayanan': namaservicekirim.toString(),
     };
     var parameter = json.encode(paramData);
-    this.arr.clear();
     http
         .post(main_variable.ipnumber + "/getlayanansalondetail",
             headers: {"Content-Type": "application/json"}, body: parameter)
@@ -280,12 +336,12 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
           ClassPilihJenjangPeruntukan databaru =
               new ClassPilihJenjangPeruntukan(
                   "Anak", "Laki-Laki", data[i]['hargapriaanak'].toString());
-          this.arrjenjangperuntukan.add(databaru);
+          arrtemp.add(databaru);
         }
       }
-      setState(() => this.arr = arr);
+      setState(() => this.arrjenjangperuntukan = arrtemp);
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
@@ -341,12 +397,12 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
   }
 
   Future<ClassPegawai> getpegawai_halamanmember() async {
+    List<ClassPegawai> arrtemp = new List();
     Map paramData = {
       'idsalon': main_variable.idsalonlogin,
       'kodelayanan': kodelayanan,
     };
     var parameter = json.encode(paramData);
-    this.arr.clear();
     http
         .post(main_variable.ipnumber + "/getpegawai_halamanmember",
             headers: {"Content-Type": "application/json"}, body: parameter)
@@ -364,11 +420,11 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
             data[i]['alamat'].toString(),
             data[i]['telp'].toString(),
             data[i]['status'].toString());
-        this.arrpegawai.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arrpegawai = arrpegawai);
+      setState(() => this.arrpegawai = arrtemp);
 
-      return arr;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });

@@ -26,22 +26,43 @@ class WithdrawSalonState extends State<WithdrawSalon> {
   TextEditingController Melalui = new TextEditingController();
   TextEditingController Norek1 = new TextEditingController();
   TextEditingController Jumlah = new TextEditingController();
-  NumberFormat numberFormat = NumberFormat(',000');
-  List<ClassUser> arrsaldo = new List();
   TextEditingController Status = new TextEditingController();
-  bool suksesupdate = false;
+
+  NumberFormat numberFormat = NumberFormat(',000');
+
+  List<ClassUser> arrsaldo = new List();
   List<ClassBank> arrpilihanbank = new List();
+
+  bool suksesupdate = false;
+
   ClassBank selectedbank1 = null, pilihan1;
 
   double money = 50.00;
 
   void initState() {
     super.initState();
+    setState(() {
+      arrsaldo.add(new ClassUser(
+          "email",
+          "username",
+          "password",
+          "nama",
+          "alamat",
+          "kota",
+          "telp",
+          "foto",
+          "0",
+          "tgllahir",
+          "jeniskelamin",
+          "role",
+          "status"));
+    });
+
     getsaldouser();
 
     arrpilihanbank.add(new ClassBank("BNI", "images/bni.png"));
     arrpilihanbank.add(new ClassBank("MANDIRI", "images/mandiri.png"));
-    arrpilihanbank.add(new ClassBank("BCA", "images/BRI.png"));
+    arrpilihanbank.add(new ClassBank("BCA", "images/bca.png"));
     arrpilihanbank.add(new ClassBank("BRI", "images/BRI.png"));
     print(arrpilihanbank.length.toString());
   }
@@ -75,7 +96,8 @@ class WithdrawSalonState extends State<WithdrawSalon> {
     return suksesupdate.toString();
   }
 
-  Future<String> getsaldouser() async {
+  Future<ClassUser> getsaldouser() async {
+    List<ClassUser> arrtemp = new List();
     Map paramData = {
       'username': main_variable.userlogin,
     };
@@ -106,11 +128,11 @@ class WithdrawSalonState extends State<WithdrawSalon> {
           data[i]['role'].toString(),
           data[i]['status'].toString(),
         );
-        this.arrsaldo.add(databaru);
+        arrtemp.add(databaru);
       }
-      setState(() => this.arrsaldo = arrsaldo);
+      setState(() => this.arrsaldo = arrtemp);
 
-      return arrsaldo;
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
