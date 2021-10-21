@@ -14,7 +14,8 @@ class ClassListBookingWithLayanan {
       pembayaran,
       foto,
       jambookingselesai,
-      total_cancel;
+      total_cancel,
+      kota;
 
   ClassListBookingWithLayanan(
       this.id,
@@ -32,5 +33,6 @@ class ClassListBookingWithLayanan {
       this.pembayaran,
       this.foto,
       this.jambookingselesai,
-      this.total_cancel);
+      this.total_cancel,
+      this.kota);
 }

@@ -111,7 +111,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           'pembayaran',
           foto,
           'jambookingselesai',
-          "0"));
+          "0",
+          ""));
       arrsemua.add(new ClassListBookingWithLayanan(
           'id',
           'tanggal',
@@ -128,7 +129,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           'pembayaran',
           foto,
           'jambookingselesai',
-          "0"));
+          "0",
+          ""));
       arrcount.add(new ClassBookingService(
           "id",
           "tanggal",
@@ -217,7 +219,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['pembayaran'].toString(),
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
-            data1[i].toString());
+            data1[i].toString(),
+            data[i]['kota'].toString());
         arrtemp.add(databaru);
 
         dateTime = DateTime.parse(arrtemp[i].tanggalbooking);
@@ -290,7 +293,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['pembayaran'].toString(),
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
-            data1[i].toString());
+            data1[i].toString(),
+            data[i]['kota'].toString());
         arrtemp1.add(databaru);
         // myNamauser.text = arrsemua[i].namauser;
         dateTime = DateTime.parse(arrtemp1[i].tanggalbooking);

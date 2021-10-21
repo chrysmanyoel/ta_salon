@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:ta_salon/DropDown.dart';
 import 'package:ta_salon/HomeMember.dart';
 import 'package:ta_salon/Pesanansaya.dart';
 import 'package:ta_salon/Profile.dart';
@@ -16,7 +17,7 @@ class Dashboardmember extends StatefulWidget {
 
 class DashboardmemberState extends State<Dashboardmember> {
   int index = 0;
-  final bottomBar = [Homemember(), Pesanansaya(), Homemember(), Profile()];
+  final bottomBar = [Homemember(), Pesanansaya(), DropDown(), Profile()];
 
   void _onTapItem(int idx) {
     setState(() {

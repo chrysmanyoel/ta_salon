@@ -29,7 +29,7 @@ class LoginRegisState extends State<LoginRegis> {
   TextEditingController myEmail = new TextEditingController();
   TextEditingController myUsername = new TextEditingController();
   TextEditingController myPassword = new TextEditingController();
-  String roleuser, jeniskelamin;
+  String roleuser, jeniskelamin, nama;
   SharedPreferences pre;
   String username = "", role = "", kota = "";
 
@@ -73,9 +73,11 @@ class LoginRegisState extends State<LoginRegis> {
     username = pre.getString("username") ?? "null";
     role = pre.getString("role") ?? "null";
     kota = pre.getString("kota") ?? "null";
+    nama = pre.getString("nama") ?? "null";
     main_variable.userlogin = username;
     main_variable.roleuserlogin = role;
     main_variable.kotauser = kota;
+    main_variable.namauser = nama;
     if (role != "") {
       if (role == "member") {
         Navigator.of(this.context).pushNamedAndRemoveUntil(
@@ -129,6 +131,7 @@ class LoginRegisState extends State<LoginRegis> {
         pre.setString("username", data[0]['username'].toString());
         pre.setString("role", data[0]['role'].toString());
         pre.setString("kota", data[0]['kota'].toString());
+        pre.setString("nama", data[0]['nama'].toString());
         main_variable.namauser = data[0]['nama'];
         Navigator.push(
             context,
