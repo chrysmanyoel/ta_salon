@@ -116,6 +116,7 @@ class HomememberState extends State<Homemember> {
         .post(main_variable.ipnumber + "/getallsalonuser",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
+      print("aaaa : " + res.body);
       var data = json.decode(res.body);
       data = data[0]['status'];
       print(data.length);
@@ -140,9 +141,10 @@ class HomememberState extends State<Homemember> {
                 data[i]['hari'].toString(),
                 data[i]['jamtutup'].toString());
         arrtemp.add(databaru);
-        foto = main_variable.ipnumber + "/gambar/" + arrsalon[i].foto;
+        foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
       }
       setState(() => this.arrsalon = arrtemp);
+      print("ini jum arrslaon : " + this.arrsalon.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -449,7 +451,7 @@ class HomememberState extends State<Homemember> {
                                                                           400])),
                                                               child: Icon(
                                                                 Icons
-                                                                    .attach_money_rounded,
+                                                                    .account_balance_wallet_outlined,
                                                                 color: Colors
                                                                     .green,
                                                                 size: 30.0,
@@ -504,7 +506,7 @@ class HomememberState extends State<Homemember> {
                                                                           400])),
                                                               child: Icon(
                                                                 Icons
-                                                                    .open_in_new_rounded,
+                                                                    .schedule_rounded,
                                                                 color: Colors
                                                                         .deepOrangeAccent[
                                                                     400],

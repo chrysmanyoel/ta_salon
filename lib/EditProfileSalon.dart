@@ -151,18 +151,28 @@ class EditprofileSalonState extends State<EditprofileSalon> {
         myJK.text = arr[i].jeniskelamin.toString();
         myStatus.text = arr[i].status.toString();
         if (myJK.text == "pria") {
-          isMale = true;
-          isFemale = false;
+          setState(() {
+            isMale = true;
+            isFemale = false;
+          });
         } else {
-          isMale = false;
-          isFemale = true;
+          setState(() {
+            isMale = false;
+            isFemale = true;
+          });
         }
         if (myStatus.text == "aktif") {
-          isAktif = true;
-          isNonAktif = false;
+          setState(() {
+            isAktif = true;
+            isNonAktif = false;
+            status = "aktif";
+          });
         } else {
-          isAktif = false;
-          isNonAktif = true;
+          setState(() {
+            status = "tutup";
+            isAktif = false;
+            isNonAktif = true;
+          });
         }
       }
       setState(() => this.arr = arr);
@@ -180,9 +190,9 @@ class EditprofileSalonState extends State<EditprofileSalon> {
       'alamat': myAlamat.text,
       'kota': myKota.text,
       'telp': myTelp.text,
-      'pembayaran': payment,
+      'pembayarancash': iscashpayment,
+      'pembayaransaldo': issaldopayment,
       'diskon': myDiskon.text,
-      'telp': myTelp.text,
       'longitude': myLongitude.text,
       'latitude': myLatitude.text,
       'keterangan': myKeterangan.text,
@@ -235,7 +245,6 @@ class EditprofileSalonState extends State<EditprofileSalon> {
         .post(main_variable.ipnumber + "/updateuser",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
-      print(res.body);
       if (res.body.contains("sukses")) {
         print("Berhasil Update Profile");
         setState(() => this.suksesupdate = true);
@@ -252,40 +261,15 @@ class EditprofileSalonState extends State<EditprofileSalon> {
         iscashpayment = newValue;
 
         if (iscashpayment) {
-          payment = "cash";
-          if (arrpayment.length == 0) {
-            arrpayment.add(payment);
-          } else {
-            arrpayment.add(payment);
-          }
-          print("ini arridkat : " + arrpayment.toString());
           // TODO: Here goes your functionality that remembers the user.
-        } else {
-          payment = "";
-          arrpayment.removeLast();
-          print("ini payment : " + arrpayment.toString());
-          // TODO: Forget the user
-        }
+        } else {}
       });
 
   void _onsaldopayment(bool newValue) => setState(() {
         issaldopayment = newValue;
 
         if (issaldopayment) {
-          payment = "saldo";
-          if (arrpayment.length == 0) {
-            arrpayment.add(payment);
-          } else {
-            arrpayment.add(payment);
-          }
-          print("ini payment : " + arrpayment.toString());
-          // TODO: Here goes your functionality that remembers the user.
-        } else {
-          payment = "";
-          arrpayment.removeLast();
-          print("ini payment : " + arrpayment.toString());
-          // TODO: Forget the user
-        }
+        } else {}
       });
 
   @override
@@ -940,7 +924,7 @@ class EditprofileSalonState extends State<EditprofileSalon> {
                           setState(() {
                             isAktif = false;
                             isNonAktif = true;
-                            status = "non-aktif";
+                            status = "tutup";
                             print("ini status nonak: " + status);
                           });
                         },
@@ -988,7 +972,8 @@ class EditprofileSalonState extends State<EditprofileSalon> {
                         height: 50,
                         child: RaisedButton(
                           onPressed: () {
-                            if (arrpayment.isEmpty == true) {
+                            if (iscashpayment == false &&
+                                issaldopayment == false) {
                               Fluttertoast.showToast(
                                   msg: "Pembayanran Salon Tidak Boleh KOSONG!",
                                   toastLength: Toast.LENGTH_LONG,
