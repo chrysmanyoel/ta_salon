@@ -14,6 +14,7 @@ class ClassUserJoinSalonJoinJadwalsalon {
       status,
       idsalon,
       hari,
+      jambuka,
       jamtutup;
 
   ClassUserJoinSalonJoinJadwalsalon(
@@ -32,5 +33,6 @@ class ClassUserJoinSalonJoinJadwalsalon {
       this.status,
       this.idsalon,
       this.hari,
+      this.jambuka,
       this.jamtutup);
 }

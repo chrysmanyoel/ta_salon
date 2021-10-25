@@ -61,6 +61,15 @@ class DetailSalonState extends State<DetailSalon> {
 
   void initState() {
     super.initState();
+    setState(() {
+      arrsalon1.add(new ClassSalon("id", "username", "namasalon", "alamat",
+          "kota", "telp", "0", "0", "keterangan", "status"));
+      arrhari
+          .add(ClassGetJadwalSalon("id", "0", "hari", "jambuka", "jamtutup"));
+      arrfav.add(new ClassFavoritJoinSalonJoinUser("idfavorit", "0", "username",
+          "namasalon", "kota", "alamat", "usernamesalon", "default.png"));
+    });
+
     print("ini usr salon dari main_var : " + main_variable.usernamesalon);
     getidsalon();
     getFavorit();

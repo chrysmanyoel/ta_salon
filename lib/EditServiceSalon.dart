@@ -119,14 +119,16 @@ class EditServiceSalonState extends State<EditServiceSalon> {
           "username",
           "namauser",
           "usernamesalon",
-          '0',
-          'tanggalbooking',
+          "0",
+          "tanggalbooking",
           "jambooking",
+          "jambookingselesai",
           "requestpegawai",
           "0",
-          'usernamecancel',
+          "usernamecancel",
           "status",
-          "pembayaran"));
+          "pembayaran",
+          "jamres"));
       arr.add(new ClassLayanansalon(
           "id",
           "username",
@@ -552,14 +554,16 @@ class EditServiceSalonState extends State<EditServiceSalon> {
         "username",
         "namauser",
         "usernamesalon",
-        "idservice",
+        "0",
         "tanggalbooking",
         "jambooking",
+        "jambookingselesai",
         "requestpegawai",
-        "total",
+        "0",
         "usernamecancel",
         "status",
-        "pembayaran");
+        "pembayaran",
+        "jamres");
 
     http
         .post(main_variable.ipnumber + "/insertbookingservice",

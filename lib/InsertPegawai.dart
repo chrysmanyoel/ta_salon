@@ -409,11 +409,13 @@ class InsertPegawaiState extends State<InsertPegawai> {
             data[i]['idservice'].toString(),
             data[i]['tanggalbooking'].toString(),
             data[i]['jambooking'].toString(),
+            data[i]['jambookingselesai'].toString(),
             data[i]['requestpegawai'].toString(),
             data[i]['total'].toString(),
             data[i]['usernamecancel'].toString(),
             data[i]['status'].toString(),
-            data[i]['pembayaran'].toString());
+            data[i]['pembayaran'].toString(),
+            data[i]['jamres'].toString());
         this.arrbooking.add(databaru);
       }
       setState(() => this.arrbooking = arrbooking);

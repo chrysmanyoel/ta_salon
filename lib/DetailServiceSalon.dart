@@ -100,11 +100,13 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
           "0",
           "tanggalbooking",
           "jambooking",
+          "jambookingselesai",
           "requestpegawai",
           "0",
           "usernamecancel",
           "status",
-          "cash"));
+          "pembayaran",
+          "jamres"));
       arrpegawai.add(new ClassPegawai(
           "id", "idsalon", "nama", "alamat", "telp", "status"));
       arrsaldo.add(new ClassUser(
@@ -246,6 +248,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
       }
 
       setState(() => this.arrsaldo = arrtemp);
+      print("aaa : " + this.arrsaldo.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -287,6 +290,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         arrtemp.add(databaru);
       }
       setState(() => this.arr = arrtemp);
+      print("ini arr : " + this.arr.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -335,6 +339,8 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         }
       }
       setState(() => this.arrjenjangperuntukan = arrtemp);
+      print("ini arrjenjangperuntukan : " +
+          this.arrjenjangperuntukan.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -362,14 +368,16 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         "username",
         "namauser",
         "usernamesalon",
-        "idservice",
+        "0",
         "tanggalbooking",
         "jambooking",
+        "jambookingselesai",
         "requestpegawai",
-        "total",
+        "0",
         "usernamecancel",
         "status",
-        "pembayaran");
+        "pembayaran",
+        "jamres");
 
     http
         .post(main_variable.ipnumber + "/insertbookingservice",
@@ -417,6 +425,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         arrtemp.add(databaru);
       }
       setState(() => this.arrpegawai = arrtemp);
+      print("ini arrpeg : " + this.arrpegawai.length.toString());
 
       return arrtemp;
     }).catchError((err) {

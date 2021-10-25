@@ -30,9 +30,10 @@ class Pesanansaya extends StatefulWidget {
 
 class PesanansayaState extends State<Pesanansaya> {
   NumberFormat numberFormat = NumberFormat(',000');
-  TextEditingController myStatus = new TextEditingController();
   TextEditingController myTgl = new TextEditingController();
+  TextEditingController myTgl_temp = new TextEditingController();
   TextEditingController myTime = new TextEditingController();
+  TextEditingController myTime_temp = new TextEditingController();
 
   List<ClassListBookingWithLayanan> arrbooking = new List();
   List<ClassListBookingWithLayanan> arrselesai = new List();
@@ -46,12 +47,14 @@ class PesanansayaState extends State<Pesanansaya> {
   String title = 'Select Filter Status',
       hari = "default",
       usernamecancel = "",
-      myidupdate = "";
+      myidupdate = "",
+      idservice = "",
+      mystatus = "",
+      statusreschedule;
 
   String arrcmb = null;
   String cari = "";
 
-  bool tampil = false;
   int _selectedIndexcarousel = 0;
   double _rating = 1;
   String foto = main_variable.ipnumber + "/gambar/default.png";
@@ -81,7 +84,11 @@ class PesanansayaState extends State<Pesanansaya> {
           "default.png",
           "jambookingselesai",
           "0",
-          ""));
+          "",
+          "jamres",
+          "tglres",
+          "statusreschedule",
+          "jamresselesai"));
       arrbooking.add(new ClassListBookingWithLayanan(
           "id",
           "tanggal",
@@ -99,7 +106,11 @@ class PesanansayaState extends State<Pesanansaya> {
           "default.png",
           "jambookingselesai",
           "0",
-          ""));
+          "",
+          "jamres",
+          "tglres",
+          "statusreschedule",
+          "jamresselesai"));
     });
 
     getlistbookinguser();
@@ -145,13 +156,64 @@ class PesanansayaState extends State<Pesanansaya> {
   Future<String> updatestatusbooking() async {
     Map paramData = {
       'id': myidupdate,
-      'status': myStatus.text,
+      'status': mystatus,
       'usernamecancel': usernamecancel,
       'username': main_variable.userlogin
     };
     var parameter = json.encode(paramData);
     http
         .post(main_variable.ipnumber + "/updatestatusbooking",
+            headers: {"Content-Type": "application/json"}, body: parameter)
+        .then((res) {
+      print("object" + res.body);
+      var data = json.decode(res.body);
+      var data1 = data[0]['bookinguser'];
+
+      getlistbookinguser();
+      getlistbookingselesai();
+
+      return "";
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  Future<String> update_status_reschedule() async {
+    Map paramData = {
+      'id': myidupdate,
+      'status': mystatus,
+      'statusreschedule': statusreschedule,
+    };
+    var parameter = json.encode(paramData);
+    http
+        .post(main_variable.ipnumber + "/updatestatusreschedule",
+            headers: {"Content-Type": "application/json"}, body: parameter)
+        .then((res) {
+      print("object" + res.body);
+      var data = json.decode(res.body);
+      var data1 = data[0]['bookinguser'];
+
+      getlistbookinguser();
+      getlistbookingselesai();
+
+      return "";
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  Future<String> updatereschedule_customer() async {
+    Map paramData = {
+      'id': myidupdate,
+      'status': mystatus,
+      'usernamecancel': usernamecancel,
+      'idservice': idservice,
+      'tglres': myTgl.text,
+      'jamres': myTime.text,
+    };
+    var parameter = json.encode(paramData);
+    http
+        .post(main_variable.ipnumber + "/updatereschedule_customer",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
       print("object" + res.body);
@@ -200,7 +262,11 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
             data[i]['total_cancel'].toString(),
-            data[i]['kota'].toString());
+            data[i]['kota'].toString(),
+            data[i]['jamres'].toString(),
+            data[i]['tglres'].toString(),
+            data[i]['statusreschedule'].toString(),
+            data[i]['jamresselesai'].toString());
         arrtemp.add(databaru);
 
         dateTime = DateTime.parse(arrtemp[i].tanggalbooking);
@@ -286,7 +352,11 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
             data[i]['total_cancel'].toString(),
-            data[i]['kota'].toString());
+            data[i]['kota'].toString(),
+            data[i]['jamres'].toString(),
+            data[i]['tglres'].toString(),
+            data[i]['statusreschedule'].toString(),
+            data[i]['jamresselesai'].toString());
         arrtemp.add(databaru);
         // myNamauser.text = arrsemua[i].namauser;
       }
@@ -297,84 +367,6 @@ class PesanansayaState extends State<Pesanansaya> {
     }).catchError((err) {
       print(err);
     });
-  }
-
-  tampilan_sedangberjalan(index) {
-    return Scaffold(
-      body: SizedBox(
-        height: MediaQuery.of(this.context).size.height,
-        child: ListView(
-          children: [],
-        ),
-      ),
-    );
-  }
-
-  showDialogFunc(context, img, title, desc) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Center(
-          child: Material(
-            type: MaterialType.transparency,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-              height: 280,
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: Image.asset(
-                      img,
-                      width: 150,
-                      height: 150,
-                    ),
-                  ),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    //width: 200,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        desc,
-                        maxLines: 3,
-                        style: TextStyle(fontSize: 15, color: Colors.grey[500]),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // buildTextButton(MaterialCommunityIcons.check, "",
-                      //     Warnalayer.facebookColor),
-                      // buildTextButton1(MaterialCommunityIcons.close, "",
-                      //     Warnalayer.googleColor)
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   Widget Dropdown_filter() {
@@ -531,52 +523,49 @@ class PesanansayaState extends State<Pesanansaya> {
                                         itemCount: arrbooking.length == 0
                                             ? 1
                                             : arrbooking.length,
-                                        itemBuilder: (BuildContext context,
-                                                int index) =>
-                                            arrbooking.length == 0
-                                                ? Container(
-                                                    child: Card(
-                                                      elevation: 10,
-                                                      shadowColor: Colors.black,
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    top: 100),
-                                                            height: 350,
-                                                            width: 450,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
+                                        itemBuilder: (BuildContext context, int index) => arrbooking.length == 0
+                                            ? Container(
+                                                child: Card(
+                                                  elevation: 10,
+                                                  shadowColor: Colors.black,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        margin: EdgeInsets.only(
+                                                            top: 100),
+                                                        height: 350,
+                                                        width: 450,
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
                                                                         30),
-                                                                image: DecorationImage(
-                                                                    image: AssetImage(
-                                                                        "images/kosong.jpg"),
-                                                                    fit: BoxFit
-                                                                        .cover)),
-                                                            child: Container(),
-                                                          ),
-                                                          Container(
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(0, 10,
-                                                                    0, 200),
-                                                            child: Text(
-                                                                "Anda Tidak Mempunyai Jadwal Hari Ini",
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 20,
-                                                                )),
-                                                          ),
-                                                        ],
+                                                            image: DecorationImage(
+                                                                image: AssetImage(
+                                                                    "images/kosong.jpg"),
+                                                                fit: BoxFit
+                                                                    .cover)),
+                                                        child: Container(),
                                                       ),
-                                                    ),
-                                                  )
-                                                //INI TAMPILAN SEDANG BERJALAN
-                                                : Container(
+                                                      Container(
+                                                        margin:
+                                                            EdgeInsets.fromLTRB(
+                                                                0, 10, 0, 200),
+                                                        child: Text(
+                                                            "Anda Tidak Mempunyai Jadwal Hari Ini",
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              fontSize: 20,
+                                                            )),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            //INI TAMPILAN SEDANG BERJALAN YANG STATUS NYA PENDING
+                                            : arrbooking[index].status == "pending" && arrbooking[index].statusreschedule == "null" //|| arrbooking[index].status == "pending" && arrbooking[index].statusreschedule == "tolak"
+                                                ? Container(
                                                     margin: EdgeInsets.fromLTRB(
                                                         10, 10, 10, 10),
                                                     decoration: BoxDecoration(
@@ -763,141 +752,1383 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                             index]
                                                                         .status,
                                                                     style: TextStyle(
-                                                                        fontSize: 16,
-                                                                        fontWeight: FontWeight.bold,
-                                                                        color: arrbooking[index].status == "pending"
-                                                                            ? Colors.orange[800]
-                                                                            : arrbooking[index].status == "terima"
-                                                                                ? Colors.green
-                                                                                : ""),
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .orange[800]),
                                                                   ),
                                                                 ),
                                                               )),
-                                                              //tampilan button apabila selesai maka 2 buton beri rating dan pesan lagi
-                                                              arrbooking[index]
-                                                                          .status ==
-                                                                      "pending"
-                                                                  ? Row(
-                                                                      children: [
-                                                                        Container(
-                                                                          width:
-                                                                              120,
-                                                                          //color: Colors.green,
-                                                                          margin: EdgeInsets.fromLTRB(
-                                                                              8,
-                                                                              0,
-                                                                              0,
-                                                                              10),
-                                                                          child:
-                                                                              Row(
-                                                                            children: [
-                                                                              RaisedButton(
-                                                                                onPressed: () {
-                                                                                  print("aaaaa");
-                                                                                },
-                                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                                                color: Colors.red[800],
-                                                                                child: Text(
-                                                                                  "Reschedule",
-                                                                                  style: TextStyle(color: Colors.white, fontSize: 14),
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                        Container(
-                                                                          width:
-                                                                              100,
-                                                                          //color: Colors.green,
-                                                                          margin: EdgeInsets.fromLTRB(
-                                                                              0,
-                                                                              0,
-                                                                              10,
-                                                                              10),
-                                                                          child:
-                                                                              Row(
-                                                                            children: [
-                                                                              RaisedButton(
-                                                                                onPressed: () {
-                                                                                  print("cancel booking");
-                                                                                  myidupdate = arrbooking[index].id;
-                                                                                  myStatus.text = "cancel";
-                                                                                  usernamecancel = arrbooking[index].requestpegawai;
-                                                                                  updatestatusbooking();
-                                                                                },
-                                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                                                color: Colors.blue[800],
-                                                                                child: Text(
-                                                                                  "Cancel",
-                                                                                  style: TextStyle(color: Colors.white, fontSize: 14),
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                        )
-                                                                      ],
-                                                                    )
-                                                                  : Row(
-                                                                      children: [
-                                                                        Container(
-                                                                          width:
-                                                                              165,
-                                                                          //color: Colors.green,
-                                                                          margin: EdgeInsets.fromLTRB(
-                                                                              8,
-                                                                              0,
-                                                                              0,
-                                                                              10),
-                                                                          child:
-                                                                              Container(
-                                                                            padding:
-                                                                                const EdgeInsets.all(9.0),
-                                                                            decoration:
-                                                                                BoxDecoration(border: Border.all(color: Colors.grey[600])),
-                                                                            child:
-                                                                                Text(
-                                                                              'Penilaian Telah Diberikan',
-                                                                              style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        //tampilan button apabila sudah memberikan rating maka pesan lagi dan penilaian telah diberikan (itu text dikasi bordder)
-
-                                                                        Container(
-                                                                          width:
-                                                                              100,
-                                                                          //color: Colors.green,
-                                                                          margin: EdgeInsets.fromLTRB(
-                                                                              8,
-                                                                              0,
-                                                                              10,
-                                                                              10),
-                                                                          child:
-                                                                              RaisedButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              print("aaaaa");
-                                                                            },
-                                                                            shape:
-                                                                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                                            color:
-                                                                                Colors.blue[800],
-                                                                            child:
-                                                                                Text(
-                                                                              "Pesan Lagi",
-                                                                              style: TextStyle(color: Colors.white, fontSize: 14),
-                                                                            ),
-                                                                          ),
-                                                                          //tampilan button apabila sudah memberikan rating maka pesan lagi dan penilaian telah diberikan (itu text dikasi bordder)
-                                                                        )
-                                                                      ],
-                                                                    )
+                                                              Container(
+                                                                  width: 150,
+                                                                  //color: Colors.green,
+                                                                  margin: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          0,
+                                                                          10,
+                                                                          10),
+                                                                  child:
+                                                                      RaisedButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      print(
+                                                                          "cancel booking");
+                                                                      myidupdate =
+                                                                          arrbooking[index]
+                                                                              .id;
+                                                                      mystatus =
+                                                                          "cancel";
+                                                                      usernamecancel =
+                                                                          arrbooking[index]
+                                                                              .username;
+                                                                      updatestatusbooking();
+                                                                    },
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10)),
+                                                                    color: Colors
+                                                                            .blue[
+                                                                        800],
+                                                                    child: Text(
+                                                                      "Cancel Booking",
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              14),
+                                                                    ),
+                                                                  ))
                                                             ],
                                                           ),
                                                         ),
                                                       ],
                                                     ),
-                                                  )),
+                                                    //INI TAMPILAN SEDANG BERJALAN YANG STATUS NYA TERIMA
+                                                  )
+                                                : arrbooking[index].status == "terima" && arrbooking[index].statusreschedule == "null" || arrbooking[index].status == "terima" && arrbooking[index].statusreschedule == "tolak"
+                                                    ? Container(
+                                                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      20.0),
+                                                        ),
+                                                        height: MediaQuery.of(context).size.height - 610,
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          20,
+                                                                          0),
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  Text(
+                                                                    hri1[index]
+                                                                            .toString() +
+                                                                        " " +
+                                                                        arrbooking[index]
+                                                                            .tanggalbooking,
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .grey[600]),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              child: Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                    flex: 2,
+                                                                    child:
+                                                                        Container(
+                                                                      margin: EdgeInsets
+                                                                          .fromLTRB(
+                                                                              10,
+                                                                              0,
+                                                                              10,
+                                                                              10),
+                                                                      child:
+                                                                          ClipRRect(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(13.0),
+                                                                        child: Image
+                                                                            .network(
+                                                                          main_variable.ipnumber +
+                                                                              "/gambar/" +
+                                                                              arrbooking[index].foto,
+                                                                          width:
+                                                                              120.0,
+                                                                          height:
+                                                                              120,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                      flex: 3,
+                                                                      child:
+                                                                          Container(
+                                                                        height:
+                                                                            130,
+                                                                        // color:
+                                                                        // Colors.blue,
+                                                                        child:
+                                                                            Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Container(
+                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                child: Text(
+                                                                                  arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                  style: TextStyle(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontSize: 18,
+                                                                                    letterSpacing: 1,
+                                                                                  ),
+                                                                                )),
+                                                                            Container(
+                                                                                margin: EdgeInsets.only(top: 12),
+                                                                                child: Text(
+                                                                                  "Layanan : " + arrbooking[index].namalayanan,
+                                                                                  style: TextStyle(
+                                                                                    //fontWeight: FontWeight.bold,
+                                                                                    fontSize: 15,
+                                                                                    letterSpacing: 1,
+                                                                                  ),
+                                                                                )),
+                                                                            Container(
+                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                child: Text(
+                                                                                  "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                  style: TextStyle(
+                                                                                    // fontWeight: FontWeight.bold,
+                                                                                    fontSize: 15,
+                                                                                    letterSpacing: 1,
+                                                                                  ),
+                                                                                )),
+                                                                            Container(
+                                                                              margin: EdgeInsets.only(top: 7),
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    'Waktu        : ' + arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      color: Colors.black,
+                                                                                    ),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      color: Colors.black,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                            Container(
+                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                child: Text(
+                                                                                  "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                  style: TextStyle(
+                                                                                    //fontWeight: FontWeight.bold,
+                                                                                    fontSize: 15,
+                                                                                    letterSpacing: 1,
+                                                                                  ),
+                                                                                )),
+                                                                          ],
+                                                                        ),
+                                                                      ))
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Divider(
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                            Container(
+                                                              child: Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                      child:
+                                                                          Container(
+                                                                    child:
+                                                                        Container(
+                                                                      margin: EdgeInsets
+                                                                          .fromLTRB(
+                                                                              20,
+                                                                              0,
+                                                                              0,
+                                                                              10),
+                                                                      child:
+                                                                          Text(
+                                                                        arrbooking[index]
+                                                                            .status,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.green),
+                                                                      ),
+                                                                    ),
+                                                                  )),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            8,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                    child:
+                                                                        RaisedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        print(
+                                                                            "aaaaa");
+                                                                        idservice =
+                                                                            arrbooking[index].idservice;
+                                                                        myidupdate =
+                                                                            arrbooking[index].id;
+                                                                        usernamecancel =
+                                                                            "-";
+                                                                        //updatestatusbooking();
+
+                                                                        reschedule_popup(
+                                                                            this.context);
+                                                                      },
+                                                                      shape: RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(10)),
+                                                                      color: Colors
+                                                                              .red[
+                                                                          800],
+                                                                      child:
+                                                                          Text(
+                                                                        "Reschedule",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 14),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    width: 100,
+                                                                    //color: Colors.green,
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            8,
+                                                                            0,
+                                                                            10,
+                                                                            10),
+                                                                    child:
+                                                                        RaisedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        print(
+                                                                            "aaaaa");
+                                                                      },
+                                                                      shape: RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(10)),
+                                                                      color: Colors
+                                                                              .blue[
+                                                                          800],
+                                                                      child:
+                                                                          Text(
+                                                                        "Cancel",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 14),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ))
+                                                    //INI TAMPILAN SEDANG BERJALAN YANG STATUSNYA RESCHEDULE SALON DAN STATUS RESCHEDULE PENDING
+                                                    : arrbooking[index].status == "reschedulesalon" && arrbooking[index].statusreschedule == "pending"
+                                                        ? Container(
+                                                            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20.0),
+                                                            ),
+                                                            height: MediaQuery.of(context).size.height - 610,
+                                                            child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          20,
+                                                                          0),
+                                                                  width: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .end,
+                                                                    children: [
+                                                                      Text(
+                                                                        hri1[index].toString() +
+                                                                            " " +
+                                                                            arrbooking[index].tanggalbooking,
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.grey[600]),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        flex: 2,
+                                                                        child:
+                                                                            Container(
+                                                                          margin: EdgeInsets.fromLTRB(
+                                                                              10,
+                                                                              0,
+                                                                              10,
+                                                                              10),
+                                                                          child:
+                                                                              ClipRRect(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(13.0),
+                                                                            child:
+                                                                                Image.network(
+                                                                              main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
+                                                                              width: 120.0,
+                                                                              height: 120,
+                                                                              fit: BoxFit.cover,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Expanded(
+                                                                          flex:
+                                                                              3,
+                                                                          child:
+                                                                              Container(
+                                                                            height:
+                                                                                130,
+                                                                            // color:
+                                                                            // Colors.blue,
+                                                                            child:
+                                                                                Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Container(
+                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                    child: Text(
+                                                                                      arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                      style: TextStyle(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        fontSize: 18,
+                                                                                        letterSpacing: 1,
+                                                                                      ),
+                                                                                    )),
+                                                                                Container(
+                                                                                    margin: EdgeInsets.only(top: 12),
+                                                                                    child: Text(
+                                                                                      "Layanan : " + arrbooking[index].namalayanan,
+                                                                                      style: TextStyle(
+                                                                                        //fontWeight: FontWeight.bold,
+                                                                                        fontSize: 15,
+                                                                                        letterSpacing: 1,
+                                                                                      ),
+                                                                                    )),
+                                                                                Container(
+                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                    child: Text(
+                                                                                      "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                      style: TextStyle(
+                                                                                        // fontWeight: FontWeight.bold,
+                                                                                        fontSize: 15,
+                                                                                        letterSpacing: 1,
+                                                                                      ),
+                                                                                    )),
+                                                                                Container(
+                                                                                  margin: EdgeInsets.only(top: 7),
+                                                                                  child: Row(
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        'Waktu        : ' + arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 15,
+                                                                                          color: Colors.black,
+                                                                                        ),
+                                                                                      ),
+                                                                                      Text(
+                                                                                        arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 15,
+                                                                                          color: Colors.black,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                    child: Text(
+                                                                                      "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                      style: TextStyle(
+                                                                                        //fontWeight: FontWeight.bold,
+                                                                                        fontSize: 15,
+                                                                                        letterSpacing: 1,
+                                                                                      ),
+                                                                                    )),
+                                                                              ],
+                                                                            ),
+                                                                          ))
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Divider(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                                Container(
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                          child:
+                                                                              Container(
+                                                                        child:
+                                                                            Container(
+                                                                          margin: EdgeInsets.fromLTRB(
+                                                                              20,
+                                                                              0,
+                                                                              0,
+                                                                              10),
+                                                                          child:
+                                                                              Text(
+                                                                            arrbooking[index].status == "reschedulesalon"
+                                                                                ? "Reschedule"
+                                                                                : "",
+                                                                            style: TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.yellow[800]),
+                                                                          ),
+                                                                        ),
+                                                                      )),
+                                                                      Container(
+                                                                        width:
+                                                                            135,
+                                                                        //color: Colors.green,
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            8,
+                                                                            0,
+                                                                            5,
+                                                                            10),
+                                                                        child:
+                                                                            RaisedButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            print("aaaaa");
+                                                                            myTgl_temp.text =
+                                                                                arrbooking[index].jamres;
+                                                                            myTime_temp.text =
+                                                                                arrbooking[index].tglres;
+                                                                            myidupdate =
+                                                                                arrbooking[index].id;
+                                                                            print(arrbooking[index].jamres);
+                                                                            print(arrbooking[index].tglres);
+                                                                            acc_lihat_reschedule(context);
+                                                                          },
+                                                                          shape:
+                                                                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                          color:
+                                                                              Colors.red[800],
+                                                                          child:
+                                                                              Text(
+                                                                            "Lihat Reschedule",
+                                                                            style:
+                                                                                TextStyle(color: Colors.white, fontSize: 14),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        width:
+                                                                            100,
+                                                                        //color: Colors.green,
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            8,
+                                                                            0,
+                                                                            10,
+                                                                            10),
+                                                                        child:
+                                                                            RaisedButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            print("aaaaa");
+                                                                            myTgl_temp.text =
+                                                                                arrbooking[index].jamres;
+                                                                            myTime_temp.text =
+                                                                                arrbooking[index].tglres;
+                                                                            myidupdate =
+                                                                                arrbooking[index].id;
+                                                                            print(arrbooking[index].jamres);
+                                                                            print(arrbooking[index].tglres);
+                                                                            acc_lihat_reschedule(context);
+                                                                          },
+                                                                          shape:
+                                                                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                          color:
+                                                                              Colors.blue[800],
+                                                                          child:
+                                                                              Text(
+                                                                            "Cancel",
+                                                                            style:
+                                                                                TextStyle(color: Colors.white, fontSize: 14),
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ))
+                                                        //INI TAMPILAN SEDANG BERJALAN YANG STATUSNYA RESCHEDULE SALON(SUDAH KETERIMA MAKA STATUS NYA TERIMA) DAN STATUS RESCHEDULE TERIMA
+                                                        : arrbooking[index].status == "terima" && arrbooking[index].statusreschedule == "terima"
+                                                            ? Container(
+                                                                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              20.0),
+                                                                ),
+                                                                height: MediaQuery.of(context).size.height - 610,
+                                                                child: Column(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding: EdgeInsets
+                                                                          .fromLTRB(
+                                                                              0,
+                                                                              5,
+                                                                              20,
+                                                                              0),
+                                                                      width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width,
+                                                                      child:
+                                                                          Column(
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.end,
+                                                                        children: [
+                                                                          Text(
+                                                                            hri1[index].toString() +
+                                                                                " " +
+                                                                                arrbooking[index].tanggalbooking,
+                                                                            style:
+                                                                                TextStyle(color: Colors.grey[600]),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      child:
+                                                                          Row(
+                                                                        children: [
+                                                                          Expanded(
+                                                                            flex:
+                                                                                2,
+                                                                            child:
+                                                                                Container(
+                                                                              margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                              child: ClipRRect(
+                                                                                borderRadius: BorderRadius.circular(13.0),
+                                                                                child: Image.network(
+                                                                                  main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
+                                                                                  width: 120.0,
+                                                                                  height: 120,
+                                                                                  fit: BoxFit.cover,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                              flex: 3,
+                                                                              child: Container(
+                                                                                height: 130,
+                                                                                // color:
+                                                                                // Colors.blue,
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Container(
+                                                                                        margin: EdgeInsets.only(top: 7),
+                                                                                        child: Text(
+                                                                                          arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.bold,
+                                                                                            fontSize: 18,
+                                                                                            letterSpacing: 1,
+                                                                                          ),
+                                                                                        )),
+                                                                                    Container(
+                                                                                        margin: EdgeInsets.only(top: 10),
+                                                                                        child: Text(
+                                                                                          "Layanan : " + arrbooking[index].namalayanan,
+                                                                                          style: TextStyle(
+                                                                                            //fontWeight: FontWeight.bold,
+                                                                                            fontSize: 15,
+                                                                                            letterSpacing: 1,
+                                                                                          ),
+                                                                                        )),
+                                                                                    Container(
+                                                                                        margin: EdgeInsets.only(top: 5),
+                                                                                        child: Text(
+                                                                                          "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                          style: TextStyle(
+                                                                                            // fontWeight: FontWeight.bold,
+                                                                                            fontSize: 15,
+                                                                                            letterSpacing: 1,
+                                                                                          ),
+                                                                                        )),
+                                                                                    Container(
+                                                                                      margin: EdgeInsets.only(top: 5),
+                                                                                      child: Row(
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            'Waktu        : ',
+                                                                                            style: TextStyle(
+                                                                                              fontSize: 15,
+                                                                                              color: Colors.black,
+                                                                                            ),
+                                                                                          ),
+                                                                                          Text(
+                                                                                            arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                            style: TextStyle(
+                                                                                              decoration: TextDecoration.lineThrough,
+                                                                                              fontSize: 13,
+                                                                                              color: Colors.grey,
+                                                                                            ),
+                                                                                          ),
+                                                                                          Text(
+                                                                                            arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                            style: TextStyle(
+                                                                                              decoration: TextDecoration.lineThrough,
+                                                                                              fontSize: 13,
+                                                                                              color: Colors.grey,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                    Container(
+                                                                                      margin: EdgeInsets.fromLTRB(75, 0, 0, 0),
+                                                                                      child: Row(
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            arrbooking[index].jamres.substring(0, 5) + " - ",
+                                                                                            style: TextStyle(
+                                                                                              fontSize: 14,
+                                                                                              color: Colors.black,
+                                                                                            ),
+                                                                                          ),
+                                                                                          Text(
+                                                                                            arrbooking[index].jamresselesai.substring(0, 5),
+                                                                                            style: TextStyle(
+                                                                                              fontSize: 14,
+                                                                                              color: Colors.black,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                    Container(
+                                                                                        margin: EdgeInsets.only(top: 5),
+                                                                                        child: Text(
+                                                                                          "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                          style: TextStyle(
+                                                                                            //fontWeight: FontWeight.bold,
+                                                                                            fontSize: 15,
+                                                                                            letterSpacing: 1,
+                                                                                          ),
+                                                                                        )),
+                                                                                  ],
+                                                                                ),
+                                                                              ))
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Divider(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
+                                                                    Container(
+                                                                      child:
+                                                                          Row(
+                                                                        children: [
+                                                                          Expanded(
+                                                                              child: Container(
+                                                                            child:
+                                                                                Container(
+                                                                              margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                                                                              child: Text(
+                                                                                arrbooking[index].status == "terima" ? "Terima" : "",
+                                                                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                                                                              ),
+                                                                            ),
+                                                                          )),
+                                                                          Container(
+                                                                            width:
+                                                                                135,
+                                                                            //color: Colors.green,
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                8,
+                                                                                0,
+                                                                                5,
+                                                                                10),
+                                                                            child:
+                                                                                RaisedButton(
+                                                                              onPressed: () {
+                                                                                print("aaaaa" + arrbooking[index].jamres.toString());
+                                                                                idservice = arrbooking[index].idservice;
+                                                                                myidupdate = arrbooking[index].id;
+                                                                                usernamecancel = arrbooking[index].username;
+                                                                                updatestatusbooking();
+                                                                                reschedule_popup(context);
+                                                                              },
+                                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                              color: Colors.red[800],
+                                                                              child: Text(
+                                                                                "Reschedule",
+                                                                                style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          Container(
+                                                                            width:
+                                                                                100,
+                                                                            //color: Colors.green,
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                8,
+                                                                                0,
+                                                                                10,
+                                                                                10),
+                                                                            child:
+                                                                                RaisedButton(
+                                                                              onPressed: () {
+                                                                                print("aaaaa");
+                                                                              },
+                                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                              color: Colors.blue[800],
+                                                                              child: Text(
+                                                                                "Cancel",
+                                                                                style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                              ),
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ))
+                                                            //INI TAMPILAN SEDANG BERJALAN YANG STATUS NYA RESCHEDULE BY USER DAN STATUS RESCHEDULE PENDING
+                                                            : arrbooking[index].status == "rescheduleuser" && arrbooking[index].statusreschedule == "pending"
+                                                                ? Container(
+                                                                    margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              20.0),
+                                                                    ),
+                                                                    height: MediaQuery.of(context).size.height - 610,
+                                                                    child: Column(
+                                                                      children: [
+                                                                        Container(
+                                                                          padding: EdgeInsets.fromLTRB(
+                                                                              0,
+                                                                              5,
+                                                                              20,
+                                                                              0),
+                                                                          width: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width,
+                                                                          child:
+                                                                              Column(
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.end,
+                                                                            children: [
+                                                                              Text(
+                                                                                hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                style: TextStyle(color: Colors.grey[600]),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        Container(
+                                                                          child:
+                                                                              Row(
+                                                                            children: [
+                                                                              Expanded(
+                                                                                flex: 2,
+                                                                                child: Container(
+                                                                                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                  child: ClipRRect(
+                                                                                    borderRadius: BorderRadius.circular(13.0),
+                                                                                    child: Image.network(
+                                                                                      main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
+                                                                                      width: 120.0,
+                                                                                      height: 120,
+                                                                                      fit: BoxFit.cover,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                              Expanded(
+                                                                                  flex: 3,
+                                                                                  child: Container(
+                                                                                    height: 130,
+                                                                                    // color:
+                                                                                    // Colors.blue,
+                                                                                    child: Column(
+                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                      children: [
+                                                                                        Container(
+                                                                                            margin: EdgeInsets.only(top: 7),
+                                                                                            child: Text(
+                                                                                              arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                              style: TextStyle(
+                                                                                                fontWeight: FontWeight.bold,
+                                                                                                fontSize: 18,
+                                                                                                letterSpacing: 1,
+                                                                                              ),
+                                                                                            )),
+                                                                                        Container(
+                                                                                            margin: EdgeInsets.only(top: 12),
+                                                                                            child: Text(
+                                                                                              "Layanan : " + arrbooking[index].namalayanan,
+                                                                                              style: TextStyle(
+                                                                                                //fontWeight: FontWeight.bold,
+                                                                                                fontSize: 15,
+                                                                                                letterSpacing: 1,
+                                                                                              ),
+                                                                                            )),
+                                                                                        Container(
+                                                                                            margin: EdgeInsets.only(top: 7),
+                                                                                            child: Text(
+                                                                                              "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                              style: TextStyle(
+                                                                                                // fontWeight: FontWeight.bold,
+                                                                                                fontSize: 15,
+                                                                                                letterSpacing: 1,
+                                                                                              ),
+                                                                                            )),
+                                                                                        Container(
+                                                                                          margin: EdgeInsets.only(top: 7),
+                                                                                          child: Row(
+                                                                                            children: [
+                                                                                              Text(
+                                                                                                'Waktu        : ' + arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                                style: TextStyle(
+                                                                                                  fontSize: 15,
+                                                                                                  color: Colors.black,
+                                                                                                ),
+                                                                                              ),
+                                                                                              Text(
+                                                                                                arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                                style: TextStyle(
+                                                                                                  fontSize: 15,
+                                                                                                  color: Colors.black,
+                                                                                                ),
+                                                                                              ),
+                                                                                            ],
+                                                                                          ),
+                                                                                        ),
+                                                                                        Container(
+                                                                                            margin: EdgeInsets.only(top: 7),
+                                                                                            child: Text(
+                                                                                              "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                              style: TextStyle(
+                                                                                                //fontWeight: FontWeight.bold,
+                                                                                                fontSize: 15,
+                                                                                                letterSpacing: 1,
+                                                                                              ),
+                                                                                            )),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ))
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        Divider(
+                                                                          color:
+                                                                              Colors.grey,
+                                                                        ),
+                                                                        Container(
+                                                                          child:
+                                                                              Row(
+                                                                            children: [
+                                                                              Expanded(
+                                                                                  child: Container(
+                                                                                child: Container(
+                                                                                  margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                                                                                  child: Text(
+                                                                                    arrbooking[index].status == "rescheduleuser" && arrbooking[index].statusreschedule == "pending" ? "Reschedule (Pending)" : "",
+                                                                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.yellow[800]),
+                                                                                  ),
+                                                                                ),
+                                                                              )),
+                                                                              Container(
+                                                                                width: 135,
+                                                                                //color: Colors.green,
+                                                                                margin: EdgeInsets.fromLTRB(8, 0, 5, 10),
+                                                                                child: RaisedButton(
+                                                                                  onPressed: () {
+                                                                                    print("aaaaa");
+                                                                                    myTime_temp.text = arrbooking[index].jamres;
+                                                                                    myTgl_temp.text = arrbooking[index].tglres;
+                                                                                    print(arrbooking[index].jamres);
+                                                                                    print(arrbooking[index].tglres);
+                                                                                    tampilan_lihat_reschedule(context);
+                                                                                  },
+                                                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                  color: Colors.red[800],
+                                                                                  child: Text(
+                                                                                    "Lihat Reschedule",
+                                                                                    style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                              Container(
+                                                                                width: 100,
+                                                                                //color: Colors.green,
+                                                                                margin: EdgeInsets.fromLTRB(8, 0, 10, 10),
+                                                                                child: RaisedButton(
+                                                                                  onPressed: () {
+                                                                                    print("aaaaa");
+                                                                                    myidupdate = arrbooking[index].id;
+                                                                                    mystatus = "cancel";
+                                                                                    usernamecancel = arrbooking[index].requestpegawai;
+                                                                                    updatestatusbooking();
+                                                                                  },
+                                                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                  color: Colors.blue[800],
+                                                                                  child: Text(
+                                                                                    "Cancel",
+                                                                                    style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                                  ),
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                //INI TAMPILAN SEDANG BERJALAN YANG STATUS NYA RESCHEDULE USER(SUDAH KETERIMA MAKA STATUS NYA TERIMA) DAN STATUS RESCHEDULE TERIMA
+                                                                : arrbooking[index].status == "terima" && arrbooking[index].statusreschedule == "terima"
+                                                                    ? Container(
+                                                                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                                        decoration: BoxDecoration(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(20.0),
+                                                                        ),
+                                                                        height: MediaQuery.of(context).size.height - 610,
+                                                                        child: Column(
+                                                                          children: [
+                                                                            Container(
+                                                                              padding: EdgeInsets.fromLTRB(0, 5, 20, 0),
+                                                                              width: MediaQuery.of(context).size.width,
+                                                                              child: Column(
+                                                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                    style: TextStyle(color: Colors.grey[600]),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                            Container(
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Expanded(
+                                                                                    flex: 2,
+                                                                                    child: Container(
+                                                                                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                      child: ClipRRect(
+                                                                                        borderRadius: BorderRadius.circular(13.0),
+                                                                                        child: Image.network(
+                                                                                          main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
+                                                                                          width: 120.0,
+                                                                                          height: 120,
+                                                                                          fit: BoxFit.cover,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Expanded(
+                                                                                      flex: 3,
+                                                                                      child: Container(
+                                                                                        height: 130,
+                                                                                        // color:
+                                                                                        // Colors.blue,
+                                                                                        child: Column(
+                                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                          children: [
+                                                                                            Container(
+                                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                                child: Text(
+                                                                                                  arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                                  style: TextStyle(
+                                                                                                    fontWeight: FontWeight.bold,
+                                                                                                    fontSize: 18,
+                                                                                                    letterSpacing: 1,
+                                                                                                  ),
+                                                                                                )),
+                                                                                            Container(
+                                                                                                margin: EdgeInsets.only(top: 10),
+                                                                                                child: Text(
+                                                                                                  "Layanan : " + arrbooking[index].namalayanan,
+                                                                                                  style: TextStyle(
+                                                                                                    //fontWeight: FontWeight.bold,
+                                                                                                    fontSize: 15,
+                                                                                                    letterSpacing: 1,
+                                                                                                  ),
+                                                                                                )),
+                                                                                            Container(
+                                                                                                margin: EdgeInsets.only(top: 5),
+                                                                                                child: Text(
+                                                                                                  "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                                  style: TextStyle(
+                                                                                                    // fontWeight: FontWeight.bold,
+                                                                                                    fontSize: 15,
+                                                                                                    letterSpacing: 1,
+                                                                                                  ),
+                                                                                                )),
+                                                                                            Container(
+                                                                                              margin: EdgeInsets.only(top: 5),
+                                                                                              child: Row(
+                                                                                                children: [
+                                                                                                  Text(
+                                                                                                    'Waktu        : ',
+                                                                                                    style: TextStyle(
+                                                                                                      fontSize: 15,
+                                                                                                      color: Colors.black,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  Text(
+                                                                                                    arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                                    style: TextStyle(
+                                                                                                      decoration: TextDecoration.lineThrough,
+                                                                                                      fontSize: 13,
+                                                                                                      color: Colors.grey,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  Text(
+                                                                                                    arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                                    style: TextStyle(
+                                                                                                      decoration: TextDecoration.lineThrough,
+                                                                                                      fontSize: 13,
+                                                                                                      color: Colors.grey,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                            Container(
+                                                                                              margin: EdgeInsets.fromLTRB(75, 0, 0, 0),
+                                                                                              child: Row(
+                                                                                                children: [
+                                                                                                  Text(
+                                                                                                    arrbooking[index].jamres.substring(0, 5) + " - ",
+                                                                                                    style: TextStyle(
+                                                                                                      fontSize: 14,
+                                                                                                      color: Colors.black,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  Text(
+                                                                                                    arrbooking[index].jamresselesai.substring(0, 5),
+                                                                                                    style: TextStyle(
+                                                                                                      fontSize: 14,
+                                                                                                      color: Colors.black,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                            Container(
+                                                                                                margin: EdgeInsets.only(top: 5),
+                                                                                                child: Text(
+                                                                                                  "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                                  style: TextStyle(
+                                                                                                    //fontWeight: FontWeight.bold,
+                                                                                                    fontSize: 15,
+                                                                                                    letterSpacing: 1,
+                                                                                                  ),
+                                                                                                )),
+                                                                                          ],
+                                                                                        ),
+                                                                                      ))
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                            Divider(
+                                                                              color: Colors.grey,
+                                                                            ),
+                                                                            Container(
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Expanded(
+                                                                                      child: Container(
+                                                                                    child: Container(
+                                                                                      margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                                                                                      child: Text(
+                                                                                        arrbooking[index].status == "rescheduleuser" && arrbooking[index].statusreschedule == "terima" ? "Terima" : "",
+                                                                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green[800]),
+                                                                                      ),
+                                                                                    ),
+                                                                                  )),
+                                                                                  Container(
+                                                                                    width: 135,
+                                                                                    //color: Colors.green,
+                                                                                    margin: EdgeInsets.fromLTRB(8, 0, 5, 10),
+                                                                                    child: RaisedButton(
+                                                                                      onPressed: () {
+                                                                                        print("aaaaa");
+                                                                                        idservice = arrbooking[index].idservice;
+                                                                                        myidupdate = arrbooking[index].id;
+                                                                                        usernamecancel = arrbooking[index].username;
+                                                                                        //updatestatusbooking();
+                                                                                        reschedule_popup(context);
+                                                                                      },
+                                                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                      color: Colors.red[800],
+                                                                                      child: Text(
+                                                                                        "Reschedule",
+                                                                                        style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    width: 100,
+                                                                                    //color: Colors.green,
+                                                                                    margin: EdgeInsets.fromLTRB(8, 0, 10, 10),
+                                                                                    child: RaisedButton(
+                                                                                      onPressed: () {
+                                                                                        print("aaaaa");
+                                                                                        myidupdate = arrbooking[index].id;
+                                                                                        mystatus = "cancel";
+                                                                                        usernamecancel = arrbooking[index].requestpegawai;
+                                                                                        updatestatusbooking();
+                                                                                      },
+                                                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                      color: Colors.blue[800],
+                                                                                      child: Text(
+                                                                                        "Cancel",
+                                                                                        style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                                      ),
+                                                                                    ),
+                                                                                  )
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ))
+                                                                    //INI TAMPILAN SEDANG BERJALAN YANG STATUS NYA DATANG
+                                                                    : arrbooking[index].status == "datang" ??
+                                                                        Container(
+                                                                            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                                                            decoration: BoxDecoration(
+                                                                              color: Colors.white,
+                                                                              borderRadius: BorderRadius.circular(20.0),
+                                                                            ),
+                                                                            height: MediaQuery.of(context).size.height - 610,
+                                                                            child: Column(
+                                                                              children: [
+                                                                                Container(
+                                                                                  padding: EdgeInsets.fromLTRB(0, 5, 20, 0),
+                                                                                  width: MediaQuery.of(context).size.width,
+                                                                                  child: Column(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                        style: TextStyle(color: Colors.grey[600]),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                  child: Row(
+                                                                                    children: [
+                                                                                      Expanded(
+                                                                                        flex: 2,
+                                                                                        child: Container(
+                                                                                          margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                          child: ClipRRect(
+                                                                                            borderRadius: BorderRadius.circular(13.0),
+                                                                                            child: Image.network(
+                                                                                              main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
+                                                                                              width: 120.0,
+                                                                                              height: 120,
+                                                                                              fit: BoxFit.cover,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      Expanded(
+                                                                                          flex: 3,
+                                                                                          child: Container(
+                                                                                            height: 130,
+                                                                                            // color:
+                                                                                            // Colors.blue,
+                                                                                            child: Column(
+                                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                              children: [
+                                                                                                Container(
+                                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                                    child: Text(
+                                                                                                      arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
+                                                                                                      style: TextStyle(
+                                                                                                        fontWeight: FontWeight.bold,
+                                                                                                        fontSize: 18,
+                                                                                                        letterSpacing: 1,
+                                                                                                      ),
+                                                                                                    )),
+                                                                                                Container(
+                                                                                                    margin: EdgeInsets.only(top: 12),
+                                                                                                    child: Text(
+                                                                                                      "Layanan : " + arrbooking[index].namalayanan,
+                                                                                                      style: TextStyle(
+                                                                                                        //fontWeight: FontWeight.bold,
+                                                                                                        fontSize: 15,
+                                                                                                        letterSpacing: 1,
+                                                                                                      ),
+                                                                                                    )),
+                                                                                                Container(
+                                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                                    child: Text(
+                                                                                                      "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                                      style: TextStyle(
+                                                                                                        // fontWeight: FontWeight.bold,
+                                                                                                        fontSize: 15,
+                                                                                                        letterSpacing: 1,
+                                                                                                      ),
+                                                                                                    )),
+                                                                                                Container(
+                                                                                                  margin: EdgeInsets.only(top: 7),
+                                                                                                  child: Row(
+                                                                                                    children: [
+                                                                                                      Text(
+                                                                                                        'Waktu        : ' + arrbooking[index].jambooking.substring(0, 5) + " - ",
+                                                                                                        style: TextStyle(
+                                                                                                          fontSize: 15,
+                                                                                                          color: Colors.black,
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                      Text(
+                                                                                                        arrbooking[index].jambookingselesai.substring(0, 5),
+                                                                                                        style: TextStyle(
+                                                                                                          fontSize: 15,
+                                                                                                          color: Colors.black,
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                    ],
+                                                                                                  ),
+                                                                                                ),
+                                                                                                Container(
+                                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                                    child: Text(
+                                                                                                      "Rp. " + numberFormat.format(int.parse(arrbooking[index].total)) + " - " + arrbooking[index].pembayaran,
+                                                                                                      style: TextStyle(
+                                                                                                        //fontWeight: FontWeight.bold,
+                                                                                                        fontSize: 15,
+                                                                                                        letterSpacing: 1,
+                                                                                                      ),
+                                                                                                    )),
+                                                                                              ],
+                                                                                            ),
+                                                                                          ))
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                Divider(
+                                                                                  color: Colors.grey,
+                                                                                ),
+                                                                                Container(
+                                                                                  child: Row(
+                                                                                    children: [
+                                                                                      Expanded(
+                                                                                          child: Container(
+                                                                                        child: Container(
+                                                                                          margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                                                                                          child: Text(
+                                                                                            arrbooking[index].status,
+                                                                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                                                                                          ),
+                                                                                        ),
+                                                                                      )),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                  width: 100,
+                                                                                  //color: Colors.green,
+                                                                                  margin: EdgeInsets.fromLTRB(8, 0, 10, 10),
+                                                                                  child: RaisedButton(
+                                                                                    onPressed: () {
+                                                                                      print("aaaaa");
+                                                                                    },
+                                                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                    color: Colors.blue[800],
+                                                                                    child: Text(
+                                                                                      "Selesai",
+                                                                                      style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                                    ),
+                                                                                  ),
+                                                                                )
+                                                                              ],
+                                                                            ))),
                                   ),
                                 ],
                               ),
@@ -1153,15 +2384,6 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                 height: 120,
                                                                                 fit: BoxFit.cover,
                                                                               ),
-                                                                              // child: Image(
-                                                                              //   width:
-                                                                              //       120.0,
-                                                                              //   height: 120,
-                                                                              //   image: AssetImage(
-                                                                              //       "images/background.png"),
-                                                                              //   fit: BoxFit
-                                                                              //       .cover,
-                                                                              // ),
                                                                             ),
                                                                           ),
                                                                           Container(
@@ -1315,24 +2537,6 @@ class PesanansayaState extends State<Pesanansaya> {
                   Divider(
                     color: Colors.black,
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: <Widget>[
-                  //       Text(
-                  //         "Tanggal Booking :",
-                  //         style: TextStyle(
-                  //             fontSize: 16,
-                  //             letterSpacing: 1.2,
-                  //             color: Colors.black),
-                  //       ),
-                  //       SizedBox(
-                  //         height: 5,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 0),
                     child: Row(
@@ -1391,24 +2595,6 @@ class PesanansayaState extends State<Pesanansaya> {
                       ],
                     ),
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: <Widget>[
-                  //       Text(
-                  //         "Jam Booking :",
-                  //         style: TextStyle(
-                  //             fontSize: 16,
-                  //             letterSpacing: 1.2,
-                  //             color: Colors.black),
-                  //       ),
-                  //       SizedBox(
-                  //         height: 5,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 0),
                     child: Row(
@@ -1482,6 +2668,15 @@ class PesanansayaState extends State<Pesanansaya> {
                                 onPressed: () {
                                   print("submit");
                                   //manggil future untuk reschedule
+                                  mystatus = "rescheduleuser";
+                                  usernamecancel = "-";
+                                  updatereschedule_customer();
+                                  print("status : " + mystatus);
+                                  print("usernamecancel : " + usernamecancel);
+                                  print("id : " + myidupdate);
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  Navigator.pop(this.context);
                                 },
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(80.0)),
@@ -1529,6 +2724,8 @@ class PesanansayaState extends State<Pesanansaya> {
                               child: RaisedButton(
                                 onPressed: () {
                                   print("cancel");
+                                  myTgl.text = "";
+                                  myTime.text = "";
                                   Navigator.pop(context);
                                 },
                                 shape: RoundedRectangleBorder(
@@ -1573,6 +2770,401 @@ class PesanansayaState extends State<Pesanansaya> {
           ),
         );
       },
+    );
+  }
+
+  tampilan_lihat_reschedule(context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              height: 320,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                    child: Text(
+                      'Reschedule Booking',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..color = Colors.black
+                          ..strokeWidth = 2.0,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                  ),
+                  Container(
+                    child: Text(
+                      "*Request Reschedule sedang menunggu konfirmasi",
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Tanggal Booking ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.calendar,
+                          "Tanggal", false, false, false, myTgl_temp),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Jam Booking  ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.timer, "Jam",
+                          false, false, false, myTime_temp),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(55, 20, 10, 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          height: 35,
+                          child: RaisedButton(
+                            onPressed: () {
+                              print("cancel");
+                              Navigator.pop(context);
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(80.0)),
+                            padding: EdgeInsets.all(0.0),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xff374ABE),
+                                      Color(0xff64B6FF)
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: 320.0, minHeight: 50.0),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Kembali",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  acc_lihat_reschedule(context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              height: 320,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                    child: Text(
+                      'Reschedule Booking',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..color = Colors.black
+                          ..strokeWidth = 2.0,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Tanggal Booking ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.calendar,
+                          "Tanggal", false, false, false, myTgl_temp),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Jam Booking  ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.timer, "Jam",
+                          false, false, false, myTime_temp),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(20, 20, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("submit");
+                                  mystatus = "terima";
+                                  statusreschedule = "terima";
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  update_status_reschedule();
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 150.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Terima",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(5, 20, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("cancel");
+                                  mystatus = "terima";
+                                  statusreschedule = "tolak";
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  update_status_reschedule();
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 320.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Tolak",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildTextField(IconData icon, String hintText, bool isPassword,
+      bool isEmail, bool enable, TextEditingController myControll) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: TextField(
+        obscureText: isPassword,
+        controller: myControll,
+        enabled: enable,
+        keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            icon,
+            color: Warnalayer.iconColor,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Warnalayer.textColor1),
+            borderRadius: BorderRadius.all(Radius.circular(35.0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Warnalayer.textColor1),
+            borderRadius: BorderRadius.all(Radius.circular(35.0)),
+          ),
+          contentPadding: EdgeInsets.all(10),
+          hintText: hintText,
+          hintStyle: TextStyle(fontSize: 14, color: Warnalayer.textColor1),
+        ),
+      ),
     );
   }
 }

@@ -7,11 +7,13 @@ class ClassBookingService {
       idservice,
       tanggalbooking,
       jambooking,
+      jambookingselesai,
       requestpegawai,
       total,
       usernamecancel,
       status,
-      pembayaran;
+      pembayaran,
+      jamres;
 
   ClassBookingService(
       this.id,
@@ -22,9 +24,11 @@ class ClassBookingService {
       this.idservice,
       this.tanggalbooking,
       this.jambooking,
+      this.jambookingselesai,
       this.requestpegawai,
       this.total,
       this.usernamecancel,
       this.status,
-      this.pembayaran);
+      this.pembayaran,
+      this.jamres);
 }

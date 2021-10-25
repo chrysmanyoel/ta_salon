@@ -6,6 +6,7 @@ import 'package:ta_salon/ClassUserJoinSalonJoinJadwalsalon.dart';
 import 'package:ta_salon/DetailSalon.dart';
 import 'package:ta_salon/Favorit.dart';
 import 'package:ta_salon/LihatSalon.dart';
+import 'ClassGetJadwalSalon.dart';
 import 'package:ta_salon/Topup.dart';
 import 'main_variable.dart' as main_variable;
 import 'dart:async';
@@ -37,6 +38,7 @@ class HomememberState extends State<Homemember> {
   TextEditingController myAlamat = new TextEditingController();
 
   List<ClassUserJoinSalonJoinJadwalsalon> arrsalon = new List();
+  List<ClassGetJadwalSalon> arrhari = new List();
   List<ClassSalonJoinIklan> arrsaloniklan = new List();
   List<ClassUser> arruser = new List();
 
@@ -63,6 +65,7 @@ class HomememberState extends State<Homemember> {
           "status",
           "idsalon",
           "hari",
+          "jambuka",
           "jamtutup"));
       arrsaloniklan.add(new ClassSalonJoinIklan(
           "idiklan",
@@ -116,7 +119,6 @@ class HomememberState extends State<Homemember> {
         .post(main_variable.ipnumber + "/getallsalonuser",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
-      print("aaaa : " + res.body);
       var data = json.decode(res.body);
       data = data[0]['status'];
       print(data.length);
@@ -139,6 +141,7 @@ class HomememberState extends State<Homemember> {
                 data[i]['status'].toString(),
                 data[i]['idsalon'].toString(),
                 data[i]['hari'].toString(),
+                data[i]['jambuka'].toString(),
                 data[i]['jamtutup'].toString());
         arrtemp.add(databaru);
         foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
@@ -377,10 +380,14 @@ class HomememberState extends State<Homemember> {
                                                   CrossAxisAlignment.end,
                                               children: [
                                                 Text(
-                                                    "Rp " +
-                                                        numberFormat.format(
-                                                            int.parse(arruser[0]
-                                                                .saldo)),
+                                                    "Rp. " + arruser[0].saldo ==
+                                                            "0"
+                                                        ? "Rp. 0"
+                                                        : "Rp. " +
+                                                            numberFormat.format(
+                                                                int.parse(
+                                                                    arruser[0]
+                                                                        .saldo)),
                                                     style: TextStyle(
                                                       color: Colors.black,
                                                       fontSize: 18,
@@ -751,7 +758,7 @@ class HomememberState extends State<Homemember> {
                                                           ],
                                                         ),
                                                       ),
-                                                      Text("Lihat Salon",
+                                                      Text("Cari Salon",
                                                           style: TextStyle(
                                                             color: Colors.black,
                                                             fontSize: 14,
@@ -1018,7 +1025,7 @@ class HomememberState extends State<Homemember> {
                                   children: <Widget>[
                                     Container(
                                       margin: EdgeInsets.fromLTRB(
-                                          10.0, 5.0, 0.0, 0.0),
+                                          10.0, 5.0, 10.0, 0.0),
                                       width: 200,
                                       height: 350,
                                       decoration: BoxDecoration(
@@ -1098,11 +1105,19 @@ class HomememberState extends State<Homemember> {
                                                             10.0),
                                                   ),
                                                   alignment: Alignment.center,
-                                                  child: Text(
-                                                      //arr[index].keterangan,
-                                                      "09:00 am"),
+                                                  child: Text(arrsalon[index]
+                                                      .jambuka
+                                                      .substring(0, 5)),
                                                 ),
-                                                SizedBox(width: 10.0),
+                                                SizedBox(width: 3.0),
+                                                Container(
+                                                  child: Text(
+                                                    " - ",
+                                                    style:
+                                                        TextStyle(fontSize: 18),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 3.0),
                                                 Container(
                                                   padding: EdgeInsets.all(5.0),
                                                   width: 70.0,
@@ -1114,9 +1129,9 @@ class HomememberState extends State<Homemember> {
                                                             10.0),
                                                   ),
                                                   alignment: Alignment.center,
-                                                  child: Text(
-                                                      //arr[index].keterangan,
-                                                      "21:00 am"),
+                                                  child: Text(arrsalon[index]
+                                                      .jamtutup
+                                                      .substring(0, 5)),
                                                 ),
                                               ],
                                             )
@@ -1155,30 +1170,30 @@ class HomememberState extends State<Homemember> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        'Terakhir Pesan',
+                        'Lihat Semua',
                         style: TextStyle(
                           fontSize: 22.0,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.5,
                         ),
                       ),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     print('Masuk On Tap');
-                      //   },
-                      //   child: Text(
-                      //     'See All',
-                      //     style: TextStyle(
-                      //       color: Theme.of(context).primaryColor,
-                      //       fontSize: 16.0,
-                      //       fontWeight: FontWeight.w600,
-                      //       letterSpacing: 1.0,
-                      //     ),
-                      //   ),
-                      // ),
+                      GestureDetector(
+                        onTap: () {
+                          print('Masuk On Tap');
+                        },
+                        child: Text(
+                          'See All',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

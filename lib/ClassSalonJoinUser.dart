@@ -9,7 +9,12 @@ class ClassSalonJoinUser {
       latitude,
       keterangan,
       status,
-      foto;
+      foto,
+      pembayaran,
+      jambuka,
+      jamtutup,
+      hari,
+      kategori;
 
   ClassSalonJoinUser(
       this.id,
@@ -22,5 +27,10 @@ class ClassSalonJoinUser {
       this.latitude,
       this.keterangan,
       this.status,
-      this.foto);
+      this.foto,
+      this.pembayaran,
+      this.jambuka,
+      this.jamtutup,
+      this.hari,
+      this.kategori);
 }

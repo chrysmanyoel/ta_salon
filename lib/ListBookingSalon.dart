@@ -29,11 +29,13 @@ class ListBookingSalon extends StatefulWidget {
 class ListBookingSalonState extends State<ListBookingSalon> {
   TextEditingController myFoto = new TextEditingController();
   TextEditingController myStatus = new TextEditingController();
+  TextEditingController myTgl_temp = new TextEditingController();
   TextEditingController myTgl = new TextEditingController();
   TextEditingController myTime = new TextEditingController();
+  TextEditingController myTime_temp = new TextEditingController();
   NumberFormat numberFormat = NumberFormat(',000');
 
-  String myidupdate;
+  String myidupdate, idservice = "", mystatus = "", statusreschedule = "";
   String foto = main_variable.ipnumber + "/gambar/default.png";
   String hari = "default", usernamecancel = "";
 
@@ -109,10 +111,14 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           'namalayanan',
           'status',
           'pembayaran',
-          foto,
+          "default.png",
           'jambookingselesai',
           "0",
-          ""));
+          "",
+          "jamres",
+          "tglres",
+          "statusreschedule",
+          "jamresselesai"));
       arrsemua.add(new ClassListBookingWithLayanan(
           'id',
           'tanggal',
@@ -127,24 +133,30 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           'namalayanan',
           'status',
           'pembayaran',
-          foto,
+          "default.png",
           'jambookingselesai',
           "0",
-          ""));
+          "",
+          "jamres",
+          "tglres",
+          "statusreschedule",
+          "jamresselesai"));
       arrcount.add(new ClassBookingService(
           "id",
           "tanggal",
           "username",
           "namauser",
           "usernamesalon",
-          "idservice",
+          "0",
           "tanggalbooking",
           "jambooking",
+          "jambookingselesai",
           "requestpegawai",
-          "total",
+          "0",
           "usernamecancel",
           "status",
-          "pembayaran"));
+          "pembayaran",
+          "jamres"));
     });
     print(arr.length.toString() + "aple");
     print(arrsemua.length.toString() + "nanas");
@@ -160,6 +172,57 @@ class ListBookingSalonState extends State<ListBookingSalon> {
 
     String namaFile = image.path;
     String basenamegallery = basename(namaFile);
+  }
+
+  Future<String> update_status_reschedule() async {
+    Map paramData = {
+      'id': myidupdate,
+      'status': mystatus,
+      'statusreschedule': statusreschedule,
+    };
+    var parameter = json.encode(paramData);
+    http
+        .post(main_variable.ipnumber + "/updatestatusreschedule",
+            headers: {"Content-Type": "application/json"}, body: parameter)
+        .then((res) {
+      print("object" + res.body);
+      var data = json.decode(res.body);
+      var data1 = data[0]['bookinguser'];
+
+      getlistbookingsalon();
+      getlistbookingsalonsemua();
+
+      return "";
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  Future<String> updatereschedule_salon() async {
+    Map paramData = {
+      'id': myidupdate,
+      'status': myStatus.text,
+      'usernamecancel': usernamecancel,
+      'idservice': idservice,
+      'tglres': myTgl.text,
+      'jamres': myTime.text,
+    };
+    var parameter = json.encode(paramData);
+    http
+        .post(main_variable.ipnumber + "/updatereschedule_customer",
+            headers: {"Content-Type": "application/json"}, body: parameter)
+        .then((res) {
+      print("object" + res.body);
+      var data = json.decode(res.body);
+      var data1 = data[0]['bookinguser'];
+
+      getlistbookingsalon();
+      getlistbookingsalonsemua();
+
+      return "";
+    }).catchError((err) {
+      print(err);
+    });
   }
 
   Future<String> upadatesalon() async {
@@ -220,7 +283,11 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
             data1[i].toString(),
-            data[i]['kota'].toString());
+            data[i]['kota'].toString(),
+            data[i]['jamres'].toString(),
+            data[i]['tglres'].toString(),
+            data[i]['statusreschedule'].toString(),
+            data[i]['jamresselesai'].toString());
         arrtemp.add(databaru);
 
         dateTime = DateTime.parse(arrtemp[i].tanggalbooking);
@@ -294,7 +361,11 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
             data1[i].toString(),
-            data[i]['kota'].toString());
+            data[i]['kota'].toString(),
+            data[i]['jamres'].toString(),
+            data[i]['tglres'].toString(),
+            data[i]['statusreschedule'].toString(),
+            data[i]['jamresselesai'].toString());
         arrtemp1.add(databaru);
         // myNamauser.text = arrsemua[i].namauser;
         dateTime = DateTime.parse(arrtemp1[i].tanggalbooking);
@@ -360,56 +431,9 @@ class ListBookingSalonState extends State<ListBookingSalon> {
       data = data[0]['bookingsemua'];
       print("panjang1" + arr.length.toString());
       print("panjang2" + arrsemua.length.toString());
-      // print("ini data" + data.toString());
 
       getlistbookingsalon();
       getlistbookingsalonsemua();
-
-      // for (int i = 0; i < data1.length; i++) {
-      //   ClassListBookingWithLayanan databaru = new ClassListBookingWithLayanan(
-      //       data1[i]['id'].toString(),
-      //       data1[i]['tanggal'].toString(),
-      //       data1[i]['username'].toString(),
-      //       data1[i]['namauser'].toString(),
-      //       data1[i]['usenamesalon'].toString(),
-      //       data1[i]['idservice'].toString(),
-      //       data1[i]['tanggalbooking'].toString(),
-      //       data1[i]['jambooking'].toString(),
-      //       data1[i]['requestpegawai'].toString(),
-      //       data1[i]['total'].toString(),
-      //       data1[i]['namalayanan'].toString(),
-      //       data1[i]['status'].toString(),
-      //       data[i]['pembayaran'].toString(),
-      //       data[i]['foto'].toString(),
-      //       data[i]['jambookingselesai'].toString(),
-      //       data[i].toString());
-      //   temp1.add(databaru);
-      // }
-      // //print("ini data2 : " + data.toString());
-      // for (int i = 0; i < data.length; i++) {
-      //   ClassListBookingWithLayanan databaru = new ClassListBookingWithLayanan(
-      //       data[i]['id'].toString(),
-      //       data[i]['tanggal'].toString(),
-      //       data[i]['username'].toString(),
-      //       data[i]['namauser'].toString(),
-      //       data[i]['usenamesalon'].toString(),
-      //       data[i]['idservice'].toString(),
-      //       data[i]['tanggalbooking'].toString(),
-      //       data[i]['jambooking'].toString(),
-      //       data[i]['requestpegawai'].toString(),
-      //       data[i]['total'].toString(),
-      //       data[i]['namalayanan'].toString(),
-      //       data[i]['status'].toString(),
-      //       data[i]['pembayaran'].toString(),
-      //       data[i]['foto'].toString(),
-      //       data[i]['jambookingselesai'].toString(),
-      //       data[i].toString());
-      //   temp2.add(databaru);
-      // }
-      // setState(() {
-      //   this.arr = temp1;
-      //   this.arrsemua = temp2;
-      // });
 
       return "";
     }).catchError((err) {
@@ -431,6 +455,160 @@ class ListBookingSalonState extends State<ListBookingSalon> {
         print("tampilsemua : " + tampilsemua.toString());
       }
     });
+  }
+
+  tampilan_lihat_reschedule(context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              height: 320,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                    child: Text(
+                      'Reschedule Booking',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..color = Colors.black
+                          ..strokeWidth = 2.0,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                  ),
+                  Container(
+                    child: Text(
+                      "*Request Reschedule sedang menunggu konfirmasi",
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Tanggal Booking ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.calendar,
+                          "Tanggal", false, false, false, myTgl_temp),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Jam Booking  ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.timer, "Jam",
+                          false, false, false, myTime_temp),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(55, 20, 10, 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          height: 35,
+                          child: RaisedButton(
+                            onPressed: () {
+                              print("cancel");
+                              Navigator.pop(context);
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(80.0)),
+                            padding: EdgeInsets.all(0.0),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xff374ABE),
+                                      Color(0xff64B6FF)
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: 320.0, minHeight: 50.0),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Kembali",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget buildTextField(IconData icon, String hintText, bool isPassword,
@@ -460,6 +638,217 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           hintStyle: TextStyle(fontSize: 14, color: Warnalayer.textColor1),
         ),
       ),
+    );
+  }
+
+  acc_lihat_reschedule(context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              height: 320,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                    child: Text(
+                      'Reschedule Booking',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..color = Colors.black
+                          ..strokeWidth = 2.0,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Tanggal Booking ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.calendar,
+                          "Tanggal", false, false, false, myTgl_temp),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Jam Booking  ",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: buildTextField(MaterialCommunityIcons.timer, "Jam",
+                          false, false, false, myTime_temp),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(20, 20, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("submit");
+                                  mystatus = "terima";
+                                  statusreschedule = "terima";
+                                  update_status_reschedule();
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 150.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Terima",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(5, 20, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("cancel");
+                                  mystatus = "terima";
+                                  statusreschedule = "tolak";
+                                  update_status_reschedule();
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 320.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Tolak",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -499,24 +888,6 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                   Divider(
                     color: Colors.black,
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: <Widget>[
-                  //       Text(
-                  //         "Tanggal Booking :",
-                  //         style: TextStyle(
-                  //             fontSize: 16,
-                  //             letterSpacing: 1.2,
-                  //             color: Colors.black),
-                  //       ),
-                  //       SizedBox(
-                  //         height: 5,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 0),
                     child: Row(
@@ -575,24 +946,6 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                       ],
                     ),
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: <Widget>[
-                  //       Text(
-                  //         "Jam Booking :",
-                  //         style: TextStyle(
-                  //             fontSize: 16,
-                  //             letterSpacing: 1.2,
-                  //             color: Colors.black),
-                  //       ),
-                  //       SizedBox(
-                  //         height: 5,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 0),
                     child: Row(
@@ -666,6 +1019,16 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                 onPressed: () {
                                   print("submit");
                                   //manggil future untuk reschedule
+                                  updatereschedule_salon();
+                                  print("status : " + myStatus.text);
+                                  print("service : " + idservice);
+                                  print("usernamecancel : " + usernamecancel);
+                                  print("jamres : " + myTgl.text);
+                                  print("tglres : " + myTime.text);
+                                  print("id : " + myidupdate);
+                                  myTgl.text = "";
+                                  myTime.text = "";
+                                  //Navigator.pop(this.context);
                                 },
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(80.0)),
@@ -859,7 +1222,9 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                             )
                           :
                           //ini kalau else item ada isinya maka simple if lagi untuk mengecek status aktif
-                          arr[index].status == "pending"
+                          arr[index].status == "pending" &&
+                                  arr[index].statusreschedule ==
+                                      "null" //|| arr[index].status == "pending" && arr[index].statusreschedule == "tolak"
                               ? Column(
                                   children: <Widget>[
                                     FocusedMenuHolder(
@@ -1246,7 +1611,13 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                     ),
                                   ],
                                 )
-                              : arr[index].status == 'terima'
+                              //INI TAMPILAN HARI INI YANG STATUS NYA TERIMA/RESCHEDULE BY SALON DAN STATUS RESCHEDULE NYA ADALAH PENDING
+                              //tampilan ini ditujukan salon untuk req reschedule ke user (CUMA REQ)
+                              : arr[index].status == 'terima' &&
+                                          arr[index].statusreschedule ==
+                                              "null" ||
+                                      arr[index].status == "terima" &&
+                                          arr[index].statusreschedule == "tolak"
                                   ?
 
                                   //ini untuk status terima
@@ -1334,9 +1705,12 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                 ),
                                                 onPressed: () {
                                                   print("reschedule");
+                                                  myStatus.text =
+                                                      "reschedulesalon";
                                                   myidupdate = arr[index].id;
                                                   usernamecancel = "-";
-                                                  myStatus.text = "reschedule";
+                                                  idservice =
+                                                      arr[index].idservice;
                                                   reschedule_popup(
                                                       this.context);
                                                 },
@@ -1370,7 +1744,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                   updatestatusbooking();
                                                   Fluttertoast.showToast(
                                                       msg:
-                                                          "Booking Telah Ditolak",
+                                                          "Booking Telah Dihapus, Customer Tidak Datang",
                                                       toastLength:
                                                           Toast.LENGTH_LONG,
                                                       gravity:
@@ -1400,14 +1774,10 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       )),
                                                 ),
                                                 onPressed: () {
-                                                  print("tolak");
-                                                  myidupdate = arr[index].id;
-                                                  usernamecancel = "-";
-                                                  myStatus.text = "tolak";
-                                                  updatestatusbooking();
+                                                  print("chat customer");
+
                                                   Fluttertoast.showToast(
-                                                      msg:
-                                                          "Booking Telah Ditolak",
+                                                      msg: "Ini Chat Customer",
                                                       toastLength:
                                                           Toast.LENGTH_LONG,
                                                       gravity:
@@ -1445,7 +1815,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                   updatestatusbooking();
                                                   Fluttertoast.showToast(
                                                       msg:
-                                                          "Booking Telah Ditolak",
+                                                          "Booking Telah Di Cancel",
                                                       toastLength:
                                                           Toast.LENGTH_LONG,
                                                       gravity:
@@ -1764,8 +2134,10 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                         ),
                                       ],
                                     )
-                                  //INI BUAT STATUS TOLAK SUPAYA TIDAK DITAMPILKAN
-                                  : arr[index].status == 'datang'
+                                  //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY USER DAN STATUS RESCHEDULE NYA PENDING MAKA ACC
+                                  : arr[index].status == "rescheduleuser" &&
+                                          arr[index].statusreschedule ==
+                                              "pending"
                                       ? Column(
                                           children: <Widget>[
                                             FocusedMenuHolder(
@@ -1807,7 +2179,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       margin: EdgeInsets.only(
                                                           left: 10),
                                                       child: Text(
-                                                          "Layanan Selesai",
+                                                          "Lihat Reschedule",
                                                           style: TextStyle(
                                                             color: Colors.white,
                                                             fontWeight:
@@ -1817,24 +2189,17 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                           )),
                                                     ),
                                                     onPressed: () {
-                                                      print("ini ini selesai");
+                                                      print("acc reschedule");
+                                                      myTgl_temp.text =
+                                                          arr[index].jamres;
+                                                      myTime_temp.text =
+                                                          arr[index].tglres;
                                                       myidupdate =
                                                           arr[index].id;
-                                                      myStatus.text = "selesai";
-                                                      usernamecancel = "-";
-                                                      updatestatusbooking();
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "1 Booking Layanan Telah Selesai",
-                                                          toastLength:
-                                                              Toast.LENGTH_LONG,
-                                                          gravity: ToastGravity
-                                                              .CENTER,
-                                                          backgroundColor:
-                                                              Colors.blue[300],
-                                                          textColor:
-                                                              Colors.black,
-                                                          fontSize: 16.0);
+                                                      print(arr[index].jamres);
+                                                      print(arr[index].tglres);
+                                                      acc_lihat_reschedule(
+                                                          context);
                                                     },
                                                     trailingIcon: Icon(
                                                       Icons
@@ -1843,6 +2208,49 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                     ),
                                                     backgroundColor:
                                                         Colors.blueAccent),
+                                                FocusedMenuItem(
+                                                    title: Container(
+                                                      margin: EdgeInsets.only(
+                                                          left: 10),
+                                                      child: Text(
+                                                          "Cancel Booking",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 17,
+                                                            letterSpacing: 1,
+                                                          )),
+                                                    ),
+                                                    onPressed: () {
+                                                      print("cancel booking");
+                                                      myidupdate =
+                                                          arr[index].id;
+                                                      myStatus.text = "cancel";
+                                                      usernamecancel =
+                                                          arr[index]
+                                                              .requestpegawai;
+                                                      updatestatusbooking();
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Booking Telah Cancel",
+                                                          toastLength:
+                                                              Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity
+                                                              .CENTER,
+                                                          backgroundColor:
+                                                              Colors.redAccent,
+                                                          textColor:
+                                                              Colors.white,
+                                                          fontSize: 16.0);
+                                                    },
+                                                    trailingIcon: Icon(
+                                                      Icons
+                                                          .follow_the_signs_sharp,
+                                                      color: Colors.white,
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.redAccent),
                                               ],
                                               child: Card(
                                                 child: Row(
@@ -1995,7 +2403,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                       "Status : ",
                                                                   style: TextStyle(
                                                                       fontSize:
-                                                                          15,
+                                                                          14,
                                                                       color: Colors
                                                                           .black),
                                                                 ),
@@ -2003,25 +2411,24 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                               RichText(
                                                                 maxLines: 1,
                                                                 text: TextSpan(
-                                                                  text: arr[
-                                                                          index]
-                                                                      .status
-                                                                      .capitalizeFirstofEach1,
+                                                                  text: arr[index]
+                                                                              .status ==
+                                                                          "rescheduleuser"
+                                                                      ? "Reschedule (Pending)"
+                                                                      : "",
                                                                   style: TextStyle(
                                                                       fontSize:
-                                                                          15,
+                                                                          14,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
                                                                       color: Colors
-                                                                          .blue),
+                                                                              .green[
+                                                                          800]),
                                                                 ),
                                                               ),
                                                             ],
                                                           ),
-                                                          SizedBox(
-                                                            height: 10,
-                                                          )
                                                         ],
                                                       ),
                                                     ),
@@ -2039,6 +2446,11 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
+                                                          Container(
+                                                            margin: EdgeInsets
+                                                                .fromLTRB(10, 0,
+                                                                    0, 10),
+                                                          ),
                                                           Row(
                                                             children: [
                                                               Container(
@@ -2180,7 +2592,1403 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                             ),
                                           ],
                                         )
-                                      : SizedBox()),
+                                      //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY SALON DAN STATUS RESCHEDULE NYA PENDING MAKA LIHAT RESCH TUNGGU ACC DARI CUSTOMER
+                                      : arr[index].status ==
+                                                  "reschedulesalon" &&
+                                              arr[index].statusreschedule ==
+                                                  "pending"
+                                          ? Column(
+                                              children: <Widget>[
+                                                FocusedMenuHolder(
+                                                  blurSize: 4,
+                                                  blurBackgroundColor:
+                                                      Colors.black,
+                                                  menuBoxDecoration:
+                                                      BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          boxShadow: [
+                                                        BoxShadow(
+                                                            color: Colors.black,
+                                                            blurRadius: 1,
+                                                            spreadRadius: 1)
+                                                      ]),
+                                                  menuWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.7,
+                                                  duration: Duration(
+                                                      microseconds: 500),
+                                                  onPressed: () {
+                                                    Fluttertoast.showToast(
+                                                        msg:
+                                                            "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                        toastLength:
+                                                            Toast.LENGTH_LONG,
+                                                        gravity:
+                                                            ToastGravity.CENTER,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.white,
+                                                        fontSize: 16.0);
+                                                  },
+                                                  menuItems: <FocusedMenuItem>[
+                                                    FocusedMenuItem(
+                                                        title: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                              "Lihat Reschedule",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 17,
+                                                                letterSpacing:
+                                                                    1,
+                                                              )),
+                                                        ),
+                                                        onPressed: () {
+                                                          print(
+                                                              "lihat res reschedule");
+                                                          myTime_temp.text =
+                                                              arr[index].jamres;
+                                                          myTgl_temp.text =
+                                                              arr[index].tglres;
+                                                          print(arr[index]
+                                                              .jamres);
+                                                          print(arr[index]
+                                                              .tglres);
+                                                          tampilan_lihat_reschedule(
+                                                              context);
+                                                        },
+                                                        trailingIcon: Icon(
+                                                          Icons
+                                                              .follow_the_signs_sharp,
+                                                          color: Colors.white,
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.blueAccent),
+                                                    FocusedMenuItem(
+                                                        title: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                              "Cancel Booking",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 17,
+                                                                letterSpacing:
+                                                                    1,
+                                                              )),
+                                                        ),
+                                                        onPressed: () {
+                                                          print(
+                                                              "cancel booking");
+                                                          myidupdate =
+                                                              arr[index].id;
+                                                          myStatus.text =
+                                                              "cancel";
+                                                          usernamecancel = arr[
+                                                                  index]
+                                                              .requestpegawai;
+                                                          updatestatusbooking();
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "Booking Telah Cancel",
+                                                              toastLength: Toast
+                                                                  .LENGTH_LONG,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .CENTER,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .redAccent,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
+                                                        },
+                                                        trailingIcon: Icon(
+                                                          Icons
+                                                              .follow_the_signs_sharp,
+                                                          color: Colors.white,
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.redAccent),
+                                                  ],
+                                                  child: Card(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          flex: 6,
+                                                          //color: Colors.red,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        10,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: arr[
+                                                                            index]
+                                                                        .namauser
+                                                                        .capitalizeFirstofEach1,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Pegawai : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arr[
+                                                                              index]
+                                                                          .requestpegawai
+                                                                          .capitalizeFirstofEach1,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        10,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: arr[
+                                                                            index]
+                                                                        .namalayanan
+                                                                        .capitalizeFirstofEach1,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        letterSpacing:
+                                                                            1.5,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: "Rp. " +
+                                                                          numberFormat
+                                                                              .format(int.parse(arr[index].total)),
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: ",-   (" +
+                                                                          arr[index]
+                                                                              .pembayaran
+                                                                              .capitalizeFirstofEach1 +
+                                                                          ")",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Status : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arr[index].status ==
+                                                                              "reschedulesalon"
+                                                                          ? "Reschedule (Pending)"
+                                                                          : "",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color:
+                                                                              Colors.green[800]),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        //ini garis tengah
+                                                        Container(
+                                                            //color: Colors.yellow,
+                                                            height: 130,
+                                                            child:
+                                                                VerticalDivider(
+                                                                    color: Colors
+                                                                        .black)),
+                                                        Expanded(
+                                                          flex: 5,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        10),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Count Batal Hadir : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arr[
+                                                                              index]
+                                                                          .total_cancel,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.red),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text:
+                                                                        "Hari Booking",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        10),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: hri1[index]
+                                                                            .toString() +
+                                                                        arr[index]
+                                                                            .tanggalbooking,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        5),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text:
+                                                                        "Jam Booking",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arr[index]
+                                                                              .jambooking +
+                                                                          "  -  ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arr[
+                                                                              index]
+                                                                          .jambookingselesai,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY USER(SUDAH KETERIMA MAKA STATUS NYA TERIMA) DAN STATUS RESCHEDULE TERIMA
+                                          : arr[index].status == "terima" &&
+                                                  arr[index].statusreschedule ==
+                                                      "terima"
+                                              ? Column(
+                                                  children: <Widget>[
+                                                    FocusedMenuHolder(
+                                                      blurSize: 4,
+                                                      blurBackgroundColor:
+                                                          Colors.black,
+                                                      menuBoxDecoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                                color: Colors
+                                                                    .black,
+                                                                blurRadius: 1,
+                                                                spreadRadius: 1)
+                                                          ]),
+                                                      menuWidth:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.7,
+                                                      duration: Duration(
+                                                          microseconds: 500),
+                                                      onPressed: () {
+                                                        Fluttertoast.showToast(
+                                                            msg:
+                                                                "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                            toastLength: Toast
+                                                                .LENGTH_LONG,
+                                                            gravity:
+                                                                ToastGravity
+                                                                    .CENTER,
+                                                            backgroundColor:
+                                                                Colors.grey,
+                                                            textColor:
+                                                                Colors.white,
+                                                            fontSize: 16.0);
+                                                      },
+                                                      menuItems: <
+                                                          FocusedMenuItem>[
+                                                        FocusedMenuItem(
+                                                            title: Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      left: 10),
+                                                              child: Text(
+                                                                  "Reschedule Booking",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17,
+                                                                    letterSpacing:
+                                                                        1,
+                                                                  )),
+                                                            ),
+                                                            onPressed: () {
+                                                              print(
+                                                                  "reschedule booking");
+                                                              idservice = arr[
+                                                                      index]
+                                                                  .idservice;
+                                                              myidupdate =
+                                                                  arr[index].id;
+                                                              usernamecancel =
+                                                                  "-";
+                                                              //updatestatusbooking();
+                                                              print(idservice +
+                                                                  "  bbbbb");
+                                                              reschedule_popup(
+                                                                  context);
+                                                            },
+                                                            trailingIcon: Icon(
+                                                              Icons
+                                                                  .follow_the_signs_sharp,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .blueAccent),
+                                                        FocusedMenuItem(
+                                                            title: Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      left: 10),
+                                                              child: Text(
+                                                                  "Cancel Booking",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17,
+                                                                    letterSpacing:
+                                                                        1,
+                                                                  )),
+                                                            ),
+                                                            onPressed: () {
+                                                              print(
+                                                                  "cancel booking");
+                                                              myidupdate =
+                                                                  arr[index].id;
+                                                              myStatus.text =
+                                                                  "cancel";
+                                                              usernamecancel = arr[
+                                                                      index]
+                                                                  .requestpegawai;
+                                                              updatestatusbooking();
+                                                              Fluttertoast.showToast(
+                                                                  msg:
+                                                                      "Booking Telah Di Cancel",
+                                                                  toastLength: Toast
+                                                                      .LENGTH_LONG,
+                                                                  gravity:
+                                                                      ToastGravity
+                                                                          .CENTER,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .redAccent,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize:
+                                                                      16.0);
+                                                            },
+                                                            trailingIcon: Icon(
+                                                              Icons
+                                                                  .follow_the_signs_sharp,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .redAccent),
+                                                      ],
+                                                      child: Card(
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Expanded(
+                                                              flex: 6,
+                                                              //color: Colors.red,
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: arr[index]
+                                                                            .namauser
+                                                                            .capitalizeFirstofEach1,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Pegawai : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arr[index]
+                                                                              .requestpegawai
+                                                                              .capitalizeFirstofEach1,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: arr[index]
+                                                                            .namalayanan
+                                                                            .capitalizeFirstofEach1,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            letterSpacing:
+                                                                                1.5,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: "Rp. " +
+                                                                              numberFormat.format(int.parse(arr[index].total)),
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: ",-   (" +
+                                                                              arr[index].pembayaran.capitalizeFirstofEach1 +
+                                                                              ")",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Status : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arr[index].status == "terima"
+                                                                              ? "Terima"
+                                                                              : "",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.green[800]),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            //ini garis tengah
+                                                            Container(
+                                                                //color: Colors.yellow,
+                                                                height: 130,
+                                                                child: VerticalDivider(
+                                                                    color: Colors
+                                                                        .black)),
+                                                            Expanded(
+                                                              flex: 5,
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Count Batal Hadir : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              arr[index].total_cancel,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.red),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text:
+                                                                            "Hari Booking",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: hri1[index].toString() +
+                                                                            arr[index].tglres,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            color:
+                                                                                Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            5),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text:
+                                                                            "Jam Booking",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arr[index].jamres +
+                                                                              "  -  ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              arr[index].jamresselesai,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              //INI BUAT STATUS TOLAK SUPAYA TIDAK DITAMPILKAN
+                                              : arr[index].status == 'datang'
+                                                  ? Column(
+                                                      children: <Widget>[
+                                                        FocusedMenuHolder(
+                                                          blurSize: 4,
+                                                          blurBackgroundColor:
+                                                              Colors.black,
+                                                          menuBoxDecoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(Radius
+                                                                          .circular(10)),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    blurRadius:
+                                                                        1,
+                                                                    spreadRadius:
+                                                                        1)
+                                                              ]),
+                                                          menuWidth:
+                                                              MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.7,
+                                                          duration: Duration(
+                                                              microseconds:
+                                                                  500),
+                                                          onPressed: () {
+                                                            Fluttertoast.showToast(
+                                                                msg:
+                                                                    "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                                toastLength: Toast
+                                                                    .LENGTH_LONG,
+                                                                gravity:
+                                                                    ToastGravity
+                                                                        .CENTER,
+                                                                backgroundColor:
+                                                                    Colors.grey,
+                                                                textColor:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 16.0);
+                                                          },
+                                                          menuItems: <
+                                                              FocusedMenuItem>[
+                                                            FocusedMenuItem(
+                                                                title:
+                                                                    Container(
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          left:
+                                                                              10),
+                                                                  child: Text(
+                                                                      "Layanan Selesai",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            17,
+                                                                        letterSpacing:
+                                                                            1,
+                                                                      )),
+                                                                ),
+                                                                onPressed: () {
+                                                                  print(
+                                                                      "ini ini selesai");
+                                                                  myidupdate =
+                                                                      arr[index]
+                                                                          .id;
+                                                                  myStatus.text =
+                                                                      "selesai";
+                                                                  usernamecancel =
+                                                                      "-";
+                                                                  updatestatusbooking();
+                                                                  Fluttertoast.showToast(
+                                                                      msg:
+                                                                          "1 Booking Layanan Telah Selesai",
+                                                                      toastLength:
+                                                                          Toast
+                                                                              .LENGTH_LONG,
+                                                                      gravity:
+                                                                          ToastGravity
+                                                                              .CENTER,
+                                                                      backgroundColor:
+                                                                          Colors.blue[
+                                                                              300],
+                                                                      textColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      fontSize:
+                                                                          16.0);
+                                                                },
+                                                                trailingIcon:
+                                                                    Icon(
+                                                                  Icons
+                                                                      .follow_the_signs_sharp,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .blueAccent),
+                                                          ],
+                                                          child: Card(
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Expanded(
+                                                                  flex: 6,
+                                                                  //color: Colors.red,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                arr[index].namauser.capitalizeFirstofEach1,
+                                                                            style: TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                0,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Pegawai : ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arr[index].requestpegawai.capitalizeFirstofEach1,
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                arr[index].namalayanan.capitalizeFirstofEach1,
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                letterSpacing: 1.5,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                3,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Rp. " + numberFormat.format(int.parse(arr[index].total)),
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: ",-   (" + arr[index].pembayaran.capitalizeFirstofEach1 + ")",
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                3,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Status : ",
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arr[index].status.capitalizeFirstofEach1,
+                                                                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height:
+                                                                            10,
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                //ini garis tengah
+                                                                Container(
+                                                                    //color: Colors.yellow,
+                                                                    height: 130,
+                                                                    child: VerticalDivider(
+                                                                        color: Colors
+                                                                            .black)),
+                                                                Expanded(
+                                                                  flex: 5,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                0,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Count Batal Hadir : ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arr[index].total_cancel,
+                                                                              style: TextStyle(fontSize: 15, color: Colors.red),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                "Hari Booking",
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                hri1[index].toString() + arr[index].tanggalbooking,
+                                                                            style:
+                                                                                TextStyle(fontSize: 15, color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            5),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                "Jam Booking",
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                10,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arr[index].jambooking + "  -  ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arr[index].jambookingselesai,
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : SizedBox()),
                 )
               //jika tampilsemua == true maka tampilkan semua
               //jika tampilsemua == true maka tampilkan semua
@@ -2235,7 +4043,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                             )
                           :
                           //ini kalau else item ada isinya maka simple if lagi untuk mengecek status aktif
-                          arrsemua[index].status == "pending"
+                          arrsemua[index].status == "pending" &&
+                                  arrsemua[index].statusreschedule == "null"
                               ? Column(
                                   children: <Widget>[
                                     FocusedMenuHolder(
@@ -2611,7 +4420,14 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                     ),
                                   ],
                                 )
-                              : arrsemua[index].status == 'terima'
+                              //INI TAMPILAN HARI INI YANG STATUS NYA TERIMA/RESCHEDULE BY SALON DAN STATUS RESCHEDULE NYA ADALAH PENDING
+                              //tampilan ini ditujukan salon untuk req reschedule ke user (CUMA REQ)
+                              : arrsemua[index].status == 'terima' &&
+                                          arrsemua[index].statusreschedule ==
+                                              "null" ||
+                                      arrsemua[index].status == "terima" &&
+                                          arrsemua[index].statusreschedule ==
+                                              "tolak"
                                   ?
                                   //ini untuk status terima
                                   Column(
@@ -2659,12 +4475,13 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       )),
                                                 ),
                                                 onPressed: () {
-                                                  print("terima");
+                                                  print("Datang");
                                                   myidupdate =
                                                       arrsemua[index].id;
                                                   usernamecancel = "-";
-                                                  myStatus.text = "terima";
+                                                  myStatus.text = "datang";
                                                   updatestatusbooking();
+                                                  //Masukan kode
                                                   Fluttertoast.showToast(
                                                       msg:
                                                           "Booking Telah Diterima",
@@ -2702,7 +4519,10 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                   myidupdate =
                                                       arrsemua[index].id;
                                                   usernamecancel = "-";
-                                                  myStatus.text = "reschedule";
+                                                  idservice =
+                                                      arrsemua[index].idservice;
+                                                  myStatus.text =
+                                                      "reschedulesalon";
                                                   reschedule_popup(
                                                       this.context);
                                                 },
@@ -2728,7 +4548,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                 ),
                                                 onPressed: () {
                                                   print("tidak datang");
-                                                  myidupdate = arr[index].id;
+                                                  myidupdate =
+                                                      arrsemua[index].id;
                                                   myStatus.text =
                                                       "tidak datang";
                                                   usernamecancel =
@@ -3138,8 +4959,11 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                         ),
                                       ],
                                     )
-                                  //INI BUAT STATUS TOLAK
-                                  : arrsemua[index].status == 'datang'
+                                  //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY USER DAN STATUS RESCHEDULE NYA PENDING MAKA ACC
+                                  : arrsemua[index].status ==
+                                              "rescheduleuser" &&
+                                          arrsemua[index].statusreschedule ==
+                                              "pending"
                                       ? Column(
                                           children: <Widget>[
                                             FocusedMenuHolder(
@@ -3181,7 +5005,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       margin: EdgeInsets.only(
                                                           left: 10),
                                                       child: Text(
-                                                          "Layanan Selesai",
+                                                          "Lihat Reschedule",
                                                           style: TextStyle(
                                                             color: Colors.white,
                                                             fontWeight:
@@ -3191,24 +5015,21 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                           )),
                                                     ),
                                                     onPressed: () {
-                                                      print("ini ini selesai");
+                                                      print("acc reschedule");
+                                                      myTgl_temp.text =
+                                                          arrsemua[index]
+                                                              .jamres;
+                                                      myTime_temp.text =
+                                                          arrsemua[index]
+                                                              .tglres;
                                                       myidupdate =
-                                                          arr[index].id;
-                                                      myStatus.text = "selesai";
-                                                      usernamecancel = "-";
-                                                      updatestatusbooking();
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "1 Booking Layanan Telah Selesai",
-                                                          toastLength:
-                                                              Toast.LENGTH_LONG,
-                                                          gravity: ToastGravity
-                                                              .CENTER,
-                                                          backgroundColor:
-                                                              Colors.blue[300],
-                                                          textColor:
-                                                              Colors.black,
-                                                          fontSize: 16.0);
+                                                          arrsemua[index].id;
+                                                      print(arrsemua[index]
+                                                          .jamres);
+                                                      print(arrsemua[index]
+                                                          .tglres);
+                                                      acc_lihat_reschedule(
+                                                          context);
                                                     },
                                                     trailingIcon: Icon(
                                                       Icons
@@ -3217,6 +5038,49 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                     ),
                                                     backgroundColor:
                                                         Colors.blueAccent),
+                                                FocusedMenuItem(
+                                                    title: Container(
+                                                      margin: EdgeInsets.only(
+                                                          left: 10),
+                                                      child: Text(
+                                                          "Cancel Booking",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 17,
+                                                            letterSpacing: 1,
+                                                          )),
+                                                    ),
+                                                    onPressed: () {
+                                                      print("cancel booking");
+                                                      myidupdate =
+                                                          arrsemua[index].id;
+                                                      myStatus.text = "cancel";
+                                                      usernamecancel =
+                                                          arrsemua[index]
+                                                              .requestpegawai;
+                                                      updatestatusbooking();
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Booking Telah Cancel",
+                                                          toastLength:
+                                                              Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity
+                                                              .CENTER,
+                                                          backgroundColor:
+                                                              Colors.redAccent,
+                                                          textColor:
+                                                              Colors.white,
+                                                          fontSize: 16.0);
+                                                    },
+                                                    trailingIcon: Icon(
+                                                      Icons
+                                                          .follow_the_signs_sharp,
+                                                      color: Colors.white,
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.redAccent),
                                               ],
                                               child: Card(
                                                 child: Row(
@@ -3234,13 +5098,12 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                         children: [
                                                           Container(
                                                             margin: EdgeInsets
-                                                                .fromLTRB(10, 0,
-                                                                    0, 0),
+                                                                .fromLTRB(10,
+                                                                    10, 0, 0),
                                                             child: RichText(
                                                               maxLines: 1,
                                                               text: TextSpan(
-                                                                text: arrsemua[
-                                                                        index]
+                                                                text: arr[index]
                                                                     .namauser
                                                                     .capitalizeFirstofEach1,
                                                                 style: TextStyle(
@@ -3372,7 +5235,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                       "Status : ",
                                                                   style: TextStyle(
                                                                       fontSize:
-                                                                          15,
+                                                                          14,
                                                                       color: Colors
                                                                           .black),
                                                                 ),
@@ -3380,18 +5243,20 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                               RichText(
                                                                 maxLines: 1,
                                                                 text: TextSpan(
-                                                                  text: arrsemua[
-                                                                          index]
-                                                                      .status
-                                                                      .capitalizeFirstofEach1,
+                                                                  text: arrsemua[index]
+                                                                              .status ==
+                                                                          "rescheduleuser"
+                                                                      ? "Reschedule (Pending)"
+                                                                      : "",
                                                                   style: TextStyle(
                                                                       fontSize:
-                                                                          15,
+                                                                          14,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
                                                                       color: Colors
-                                                                          .blue),
+                                                                              .green[
+                                                                          800]),
                                                                 ),
                                                               ),
                                                             ],
@@ -3413,6 +5278,11 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
+                                                          Container(
+                                                            margin: EdgeInsets
+                                                                .fromLTRB(10, 0,
+                                                                    0, 10),
+                                                          ),
                                                           Row(
                                                             children: [
                                                               Container(
@@ -3439,8 +5309,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                 text: TextSpan(
                                                                   text: arrsemua[
                                                                           index]
-                                                                      .total_cancel
-                                                                      .toString(),
+                                                                      .total_cancel,
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           15,
@@ -3557,7 +5426,1411 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                             ),
                                           ],
                                         )
-                                      : SizedBox()),
+                                      //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY SALON DAN STATUS RESCHEDULE NYA PENDING MAKA LIHAT RESCH TUNGGU ACC DARI CUSTOMER
+                                      : arrsemua[index].status ==
+                                                  "reschedulesalon" &&
+                                              arrsemua[index]
+                                                      .statusreschedule ==
+                                                  "pending"
+                                          ? Column(
+                                              children: <Widget>[
+                                                FocusedMenuHolder(
+                                                  blurSize: 4,
+                                                  blurBackgroundColor:
+                                                      Colors.black,
+                                                  menuBoxDecoration:
+                                                      BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          boxShadow: [
+                                                        BoxShadow(
+                                                            color: Colors.black,
+                                                            blurRadius: 1,
+                                                            spreadRadius: 1)
+                                                      ]),
+                                                  menuWidth:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.7,
+                                                  duration: Duration(
+                                                      microseconds: 500),
+                                                  onPressed: () {
+                                                    Fluttertoast.showToast(
+                                                        msg:
+                                                            "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                        toastLength:
+                                                            Toast.LENGTH_LONG,
+                                                        gravity:
+                                                            ToastGravity.CENTER,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.white,
+                                                        fontSize: 16.0);
+                                                  },
+                                                  menuItems: <FocusedMenuItem>[
+                                                    FocusedMenuItem(
+                                                        title: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                              "Lihat Reschedule",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 17,
+                                                                letterSpacing:
+                                                                    1,
+                                                              )),
+                                                        ),
+                                                        onPressed: () {
+                                                          print(
+                                                              "lihat res reschedule");
+                                                          myTime_temp.text =
+                                                              arrsemua[index]
+                                                                  .jamres;
+                                                          myTgl_temp.text =
+                                                              arr[index].tglres;
+                                                          print(arrsemua[index]
+                                                              .jamres);
+                                                          print(arrsemua[index]
+                                                              .tglres);
+                                                          tampilan_lihat_reschedule(
+                                                              context);
+                                                        },
+                                                        trailingIcon: Icon(
+                                                          Icons
+                                                              .follow_the_signs_sharp,
+                                                          color: Colors.white,
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.blueAccent),
+                                                    FocusedMenuItem(
+                                                        title: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                              "Cancel Booking",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 17,
+                                                                letterSpacing:
+                                                                    1,
+                                                              )),
+                                                        ),
+                                                        onPressed: () {
+                                                          print(
+                                                              "cancel booking");
+                                                          myidupdate =
+                                                              arrsemua[index]
+                                                                  .id;
+                                                          myStatus.text =
+                                                              "cancel";
+                                                          usernamecancel =
+                                                              arrsemua[index]
+                                                                  .requestpegawai;
+                                                          updatestatusbooking();
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "Booking Telah Cancel",
+                                                              toastLength: Toast
+                                                                  .LENGTH_LONG,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .CENTER,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .redAccent,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
+                                                        },
+                                                        trailingIcon: Icon(
+                                                          Icons
+                                                              .follow_the_signs_sharp,
+                                                          color: Colors.white,
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.redAccent),
+                                                  ],
+                                                  child: Card(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          flex: 6,
+                                                          //color: Colors.red,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        10,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: arrsemua[
+                                                                            index]
+                                                                        .namauser
+                                                                        .capitalizeFirstofEach1,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Pegawai : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arrsemua[
+                                                                              index]
+                                                                          .requestpegawai
+                                                                          .capitalizeFirstofEach1,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        10,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: arrsemua[
+                                                                            index]
+                                                                        .namalayanan
+                                                                        .capitalizeFirstofEach1,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        letterSpacing:
+                                                                            1.5,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: "Rp. " +
+                                                                          numberFormat
+                                                                              .format(int.parse(arrsemua[index].total)),
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: ",-   (" +
+                                                                          arrsemua[index]
+                                                                              .pembayaran
+                                                                              .capitalizeFirstofEach1 +
+                                                                          ")",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Status : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arrsemua[index].status ==
+                                                                              "reschedulesalon"
+                                                                          ? "Reschedule (Pending)"
+                                                                          : "",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color:
+                                                                              Colors.green[800]),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        //ini garis tengah
+                                                        Container(
+                                                            //color: Colors.yellow,
+                                                            height: 130,
+                                                            child:
+                                                                VerticalDivider(
+                                                                    color: Colors
+                                                                        .black)),
+                                                        Expanded(
+                                                          flex: 5,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        10),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text:
+                                                                          "Count Batal Hadir : ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arrsemua[
+                                                                              index]
+                                                                          .total_cancel,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.red),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        0),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text:
+                                                                        "Hari Booking",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        10),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text: hri2[index]
+                                                                            .toString() +
+                                                                        arrsemua[index]
+                                                                            .tanggalbooking,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        10,
+                                                                        0,
+                                                                        0,
+                                                                        5),
+                                                                child: RichText(
+                                                                  maxLines: 1,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    text:
+                                                                        "Jam Booking",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                  ),
+                                                                  RichText(
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arrsemua[index]
+                                                                              .jambooking +
+                                                                          "  -  ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                  RichText(
+                                                                    maxLines: 1,
+                                                                    text:
+                                                                        TextSpan(
+                                                                      text: arrsemua[
+                                                                              index]
+                                                                          .jambookingselesai,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.black),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          //INI TAMPILAN HARI INI YANG STATUSNYA RESCHEDULE BY USER(SUDAH KETERIMA MAKA STATUS NYA TERIMA) DAN STATUS RESCHEDULE TERIMA
+                                          : arrsemua[index].status ==
+                                                      "terima" &&
+                                                  arrsemua[index]
+                                                          .statusreschedule ==
+                                                      "terima"
+                                              ? Column(
+                                                  children: <Widget>[
+                                                    FocusedMenuHolder(
+                                                      blurSize: 4,
+                                                      blurBackgroundColor:
+                                                          Colors.black,
+                                                      menuBoxDecoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                                color: Colors
+                                                                    .black,
+                                                                blurRadius: 1,
+                                                                spreadRadius: 1)
+                                                          ]),
+                                                      menuWidth:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.7,
+                                                      duration: Duration(
+                                                          microseconds: 500),
+                                                      onPressed: () {
+                                                        Fluttertoast.showToast(
+                                                            msg:
+                                                                "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                            toastLength: Toast
+                                                                .LENGTH_LONG,
+                                                            gravity:
+                                                                ToastGravity
+                                                                    .CENTER,
+                                                            backgroundColor:
+                                                                Colors.grey,
+                                                            textColor:
+                                                                Colors.white,
+                                                            fontSize: 16.0);
+                                                      },
+                                                      menuItems: <
+                                                          FocusedMenuItem>[
+                                                        FocusedMenuItem(
+                                                            title: Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      left: 10),
+                                                              child: Text(
+                                                                  "Reschedule Booking",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17,
+                                                                    letterSpacing:
+                                                                        1,
+                                                                  )),
+                                                            ),
+                                                            onPressed: () {
+                                                              print(
+                                                                  "reschedule booking");
+                                                              idservice =
+                                                                  arrsemua[
+                                                                          index]
+                                                                      .idservice;
+                                                              myidupdate =
+                                                                  arrsemua[
+                                                                          index]
+                                                                      .id;
+                                                              usernamecancel =
+                                                                  "-";
+                                                              //updatestatusbooking();
+                                                              print(idservice +
+                                                                  "  bbbbb");
+                                                              reschedule_popup(
+                                                                  context);
+                                                            },
+                                                            trailingIcon: Icon(
+                                                              Icons
+                                                                  .follow_the_signs_sharp,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .blueAccent),
+                                                        FocusedMenuItem(
+                                                            title: Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      left: 10),
+                                                              child: Text(
+                                                                  "Cancel Booking",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17,
+                                                                    letterSpacing:
+                                                                        1,
+                                                                  )),
+                                                            ),
+                                                            onPressed: () {
+                                                              print(
+                                                                  "cancel booking");
+                                                              myidupdate =
+                                                                  arrsemua[
+                                                                          index]
+                                                                      .id;
+                                                              myStatus.text =
+                                                                  "cancel";
+                                                              usernamecancel =
+                                                                  arrsemua[
+                                                                          index]
+                                                                      .requestpegawai;
+                                                              updatestatusbooking();
+                                                              Fluttertoast.showToast(
+                                                                  msg:
+                                                                      "Booking Telah Di Cancel",
+                                                                  toastLength: Toast
+                                                                      .LENGTH_LONG,
+                                                                  gravity:
+                                                                      ToastGravity
+                                                                          .CENTER,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .redAccent,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize:
+                                                                      16.0);
+                                                            },
+                                                            trailingIcon: Icon(
+                                                              Icons
+                                                                  .follow_the_signs_sharp,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .redAccent),
+                                                      ],
+                                                      child: Card(
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Expanded(
+                                                              flex: 6,
+                                                              //color: Colors.red,
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: arrsemua[index]
+                                                                            .namauser
+                                                                            .capitalizeFirstofEach1,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Pegawai : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arrsemua[index]
+                                                                              .requestpegawai
+                                                                              .capitalizeFirstofEach1,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: arrsemua[index]
+                                                                            .namalayanan
+                                                                            .capitalizeFirstofEach1,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            letterSpacing:
+                                                                                1.5,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: "Rp. " +
+                                                                              numberFormat.format(int.parse(arrsemua[index].total)),
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: ",-   (" +
+                                                                              arrsemua[index].pembayaran.capitalizeFirstofEach1 +
+                                                                              ")",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            3,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Status : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arrsemua[index].status == "terima"
+                                                                              ? "Terima"
+                                                                              : "",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.green[800]),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            //ini garis tengah
+                                                            Container(
+                                                                //color: Colors.yellow,
+                                                                height: 130,
+                                                                child: VerticalDivider(
+                                                                    color: Colors
+                                                                        .black)),
+                                                            Expanded(
+                                                              flex: 5,
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              "Count Batal Hadir : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              arrsemua[index].total_cancel,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.red),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text:
+                                                                            "Hari Booking",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text: hri2[index].toString() +
+                                                                            arrsemua[index].tglres,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            color:
+                                                                                Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    margin: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            5),
+                                                                    child:
+                                                                        RichText(
+                                                                      maxLines:
+                                                                          1,
+                                                                      text:
+                                                                          TextSpan(
+                                                                        text:
+                                                                            "Jam Booking",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color: Colors.black),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                      ),
+                                                                      RichText(
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text: arrsemua[index].jamres +
+                                                                              "  -  ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                      RichText(
+                                                                        maxLines:
+                                                                            1,
+                                                                        text:
+                                                                            TextSpan(
+                                                                          text:
+                                                                              arrsemua[index].jamresselesai,
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors.black),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              //INI BUAT STATUS TOLAK
+                                              : arrsemua[index].status ==
+                                                      'datang'
+                                                  ? Column(
+                                                      children: <Widget>[
+                                                        FocusedMenuHolder(
+                                                          blurSize: 4,
+                                                          blurBackgroundColor:
+                                                              Colors.black,
+                                                          menuBoxDecoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(Radius
+                                                                          .circular(10)),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    blurRadius:
+                                                                        1,
+                                                                    spreadRadius:
+                                                                        1)
+                                                              ]),
+                                                          menuWidth:
+                                                              MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.7,
+                                                          duration: Duration(
+                                                              microseconds:
+                                                                  500),
+                                                          onPressed: () {
+                                                            Fluttertoast.showToast(
+                                                                msg:
+                                                                    "Tekan lebih lama untuk mengkonfirmasi pesanan",
+                                                                toastLength: Toast
+                                                                    .LENGTH_LONG,
+                                                                gravity:
+                                                                    ToastGravity
+                                                                        .CENTER,
+                                                                backgroundColor:
+                                                                    Colors.grey,
+                                                                textColor:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 16.0);
+                                                          },
+                                                          menuItems: <
+                                                              FocusedMenuItem>[
+                                                            FocusedMenuItem(
+                                                                title:
+                                                                    Container(
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          left:
+                                                                              10),
+                                                                  child: Text(
+                                                                      "Layanan Selesai",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            17,
+                                                                        letterSpacing:
+                                                                            1,
+                                                                      )),
+                                                                ),
+                                                                onPressed: () {
+                                                                  print(
+                                                                      "ini ini selesai");
+                                                                  myidupdate =
+                                                                      arr[index]
+                                                                          .id;
+                                                                  myStatus.text =
+                                                                      "selesai";
+                                                                  usernamecancel =
+                                                                      "-";
+                                                                  updatestatusbooking();
+                                                                  Fluttertoast.showToast(
+                                                                      msg:
+                                                                          "1 Booking Layanan Telah Selesai",
+                                                                      toastLength:
+                                                                          Toast
+                                                                              .LENGTH_LONG,
+                                                                      gravity:
+                                                                          ToastGravity
+                                                                              .CENTER,
+                                                                      backgroundColor:
+                                                                          Colors.blue[
+                                                                              300],
+                                                                      textColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      fontSize:
+                                                                          16.0);
+                                                                },
+                                                                trailingIcon:
+                                                                    Icon(
+                                                                  Icons
+                                                                      .follow_the_signs_sharp,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .blueAccent),
+                                                          ],
+                                                          child: Card(
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Expanded(
+                                                                  flex: 6,
+                                                                  //color: Colors.red,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                arrsemua[index].namauser.capitalizeFirstofEach1,
+                                                                            style: TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                0,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Pegawai : ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arrsemua[index].requestpegawai.capitalizeFirstofEach1,
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            10,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                arrsemua[index].namalayanan.capitalizeFirstofEach1,
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                letterSpacing: 1.5,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                3,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Rp. " + numberFormat.format(int.parse(arrsemua[index].total)),
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: ",-   (" + arrsemua[index].pembayaran.capitalizeFirstofEach1 + ")",
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                3,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Status : ",
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arrsemua[index].status.capitalizeFirstofEach1,
+                                                                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                //ini garis tengah
+                                                                Container(
+                                                                    //color: Colors.yellow,
+                                                                    height: 130,
+                                                                    child: VerticalDivider(
+                                                                        color: Colors
+                                                                            .black)),
+                                                                Expanded(
+                                                                  flex: 5,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                0,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: "Count Batal Hadir : ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arrsemua[index].total_cancel.toString(),
+                                                                              style: TextStyle(fontSize: 15, color: Colors.red),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                "Hari Booking",
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            10),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                hri2[index].toString() + arrsemua[index].tanggalbooking,
+                                                                            style:
+                                                                                TextStyle(fontSize: 15, color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        margin: EdgeInsets.fromLTRB(
+                                                                            10,
+                                                                            0,
+                                                                            0,
+                                                                            5),
+                                                                        child:
+                                                                            RichText(
+                                                                          maxLines:
+                                                                              1,
+                                                                          text:
+                                                                              TextSpan(
+                                                                            text:
+                                                                                "Jam Booking",
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            margin: EdgeInsets.fromLTRB(
+                                                                                10,
+                                                                                10,
+                                                                                0,
+                                                                                0),
+                                                                          ),
+                                                                          RichText(
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arrsemua[index].jambooking + "  -  ",
+                                                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                          RichText(
+                                                                            maxLines:
+                                                                                1,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              text: arrsemua[index].jambookingselesai,
+                                                                              style: TextStyle(fontSize: 15, color: Colors.black),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : SizedBox()),
                 ),
         ],
       ),

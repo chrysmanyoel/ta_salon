@@ -106,11 +106,13 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
           "0",
           "tanggalbooking",
           "jambooking",
+          "jambookingselesai",
           "requestpegawai",
           "0",
           "usernamecancel",
           "status",
-          "pembayaran"));
+          "pembayaran",
+          "jamres"));
       arr.add(new ClassLayanansalon(
           "id",
           "username",
@@ -367,14 +369,16 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
         "username",
         "namauser",
         "usernamesalon",
-        "idservice",
+        "0",
         "tanggalbooking",
         "jambooking",
+        "jambookingselesai",
         "requestpegawai",
-        "total",
+        "0",
         "usernamecancel",
         "status",
-        "pembayaran");
+        "pembayaran",
+        "jamres");
 
     http
         .post(main_variable.ipnumber + "/insertbookingservice",

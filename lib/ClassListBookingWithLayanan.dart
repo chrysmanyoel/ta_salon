@@ -15,7 +15,11 @@ class ClassListBookingWithLayanan {
       foto,
       jambookingselesai,
       total_cancel,
-      kota;
+      kota,
+      jamres,
+      tglres,
+      statusreschedule,
+      jamresselesai;
 
   ClassListBookingWithLayanan(
       this.id,
@@ -34,5 +38,9 @@ class ClassListBookingWithLayanan {
       this.foto,
       this.jambookingselesai,
       this.total_cancel,
-      this.kota);
+      this.kota,
+      this.jamres,
+      this.tglres,
+      this.statusreschedule,
+      this.jamresselesai);
 }
