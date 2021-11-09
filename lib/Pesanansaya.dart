@@ -88,7 +88,10 @@ class PesanansayaState extends State<Pesanansaya> {
           "jamres",
           "tglres",
           "statusreschedule",
-          "jamresselesai"));
+          "jamresselesai",
+          "kdoe_pesanan",
+          "keterangan",
+          "keterangan"));
       arrbooking.add(new ClassListBookingWithLayanan(
           "id",
           "tanggal",
@@ -110,7 +113,10 @@ class PesanansayaState extends State<Pesanansaya> {
           "jamres",
           "tglres",
           "statusreschedule",
-          "jamresselesai"));
+          "jamresselesai",
+          "kdoe_pesanan",
+          "keterangan",
+          "keterangan"));
     });
 
     getlistbookinguser();
@@ -250,11 +256,11 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['tanggal'].toString(),
             data[i]['username'].toString(),
             data[i]['namauser'].toString(),
-            data[i]['usernamesalon'].toString(),
+            data[i]['namasalon'].toString(),
             data[i]['idservice'].toString(),
             data[i]['tanggalbooking'].toString(),
             data[i]['jambooking'].toString(),
-            data[i]['requestpegawai'].toString(),
+            data[i]['namapegawai'].toString(),
             data[i]['total'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['status'].toString(),
@@ -266,7 +272,10 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['jamres'].toString(),
             data[i]['tglres'].toString(),
             data[i]['statusreschedule'].toString(),
-            data[i]['jamresselesai'].toString());
+            data[i]['jamresselesai'].toString(),
+            data[i]['kode_pesanan'].toString(),
+            data[i]['keterangan'].toString(),
+            data[i]['toleransi_keterlambatan'].toString());
         arrtemp.add(databaru);
 
         dateTime = DateTime.parse(arrtemp[i].tanggalbooking);
@@ -311,7 +320,7 @@ class PesanansayaState extends State<Pesanansaya> {
       }
 
       setState(() => this.arrbooking = arrtemp);
-      print("ini panjang arr : " + this.arrbooking[1].usernamesalon);
+      print("ini panjang arr : " + this.arrbooking[1].namasalon);
 
       return arrtemp;
     }).catchError((err) {
@@ -340,11 +349,11 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['tanggal'].toString(),
             data[i]['username'].toString(),
             data[i]['namauser'].toString(),
-            data[i]['usernamesalon'].toString(),
+            data[i]['namasalon'].toString(),
             data[i]['idservice'].toString(),
             data[i]['tanggalbooking'].toString(),
             data[i]['jambooking'].toString(),
-            data[i]['requestpegawai'].toString(),
+            data[i]['namapegawai'].toString(),
             data[i]['total'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['status'].toString(),
@@ -356,7 +365,10 @@ class PesanansayaState extends State<Pesanansaya> {
             data[i]['jamres'].toString(),
             data[i]['tglres'].toString(),
             data[i]['statusreschedule'].toString(),
-            data[i]['jamresselesai'].toString());
+            data[i]['jamresselesai'].toString(),
+            data[i]['kode_pesanan'].toString(),
+            data[i]['keterangan'].toString(),
+            data[i]['toleransi_keterlambatan'].toString());
         arrtemp.add(databaru);
         // myNamauser.text = arrsemua[i].namauser;
       }
@@ -515,6 +527,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                     parent: AlwaysScrollableScrollPhysics()),
                                 children: [
                                   Container(
+                                    height: MediaQuery.of(context).size.height,
                                     color: Warnalayer.backgroundColor,
                                     child: ListView.builder(
                                         physics: NeverScrollableScrollPhysics(),
@@ -567,7 +580,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                             : arrbooking[index].status == "pending" && arrbooking[index].statusreschedule == "null" //|| arrbooking[index].status == "pending" && arrbooking[index].statusreschedule == "tolak"
                                                 ? Container(
                                                     margin: EdgeInsets.fromLTRB(
-                                                        10, 10, 10, 10),
+                                                        10, 10, 10, 0),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white,
                                                       borderRadius:
@@ -578,36 +591,61 @@ class PesanansayaState extends State<Pesanansaya> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .height -
-                                                            610,
+                                                            575,
                                                     child: Column(
                                                       children: [
                                                         Container(
                                                           padding: EdgeInsets
                                                               .fromLTRB(
-                                                                  0, 5, 20, 0),
+                                                                  0, 5, 0, 0),
                                                           width: MediaQuery.of(
                                                                   context)
                                                               .size
                                                               .width,
-                                                          child: Column(
+                                                          child: Row(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
                                                                     .end,
                                                             children: [
-                                                              Text(
-                                                                hri1[index]
-                                                                        .toString() +
-                                                                    " " +
-                                                                    arrbooking[
-                                                                            index]
-                                                                        .tanggalbooking,
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        600]),
+                                                              Container(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            15),
+                                                                width: 240,
+                                                                child: Text(
+                                                                  "Kode Pesanan : " +
+                                                                      arrbooking[
+                                                                              index]
+                                                                          .kode_pesanan,
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          600]),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                child: Text(
+                                                                  hri1[index]
+                                                                          .toString() +
+                                                                      " " +
+                                                                      arrbooking[
+                                                                              index]
+                                                                          .tanggalbooking,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          600]),
+                                                                ),
                                                               ),
                                                             ],
                                                           ),
+                                                        ),
+                                                        Divider(
+                                                          color: Colors.grey,
                                                         ),
                                                         Container(
                                                           child: Row(
@@ -621,7 +659,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           10,
                                                                           0,
                                                                           10,
-                                                                          10),
+                                                                          0),
                                                                   child:
                                                                       ClipRRect(
                                                                     borderRadius:
@@ -637,7 +675,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                       width:
                                                                           120.0,
                                                                       height:
-                                                                          120,
+                                                                          145,
                                                                       fit: BoxFit
                                                                           .cover,
                                                                     ),
@@ -648,7 +686,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                   flex: 3,
                                                                   child:
                                                                       Container(
-                                                                    height: 130,
+                                                                    height: 140,
                                                                     // color:
                                                                     // Colors.blue,
                                                                     child:
@@ -658,16 +696,22 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               .start,
                                                                       children: [
                                                                         Container(
-                                                                            margin:
-                                                                                EdgeInsets.only(top: 7),
-                                                                            child: Text(
-                                                                              arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.bold,
-                                                                                fontSize: 18,
-                                                                                letterSpacing: 1,
-                                                                              ),
-                                                                            )),
+                                                                            //margin:EdgeInsets.only(top: 7),
+                                                                            child:
+                                                                                Text(
+                                                                          arrbooking[index].namasalon +
+                                                                              " - " +
+                                                                              arrbooking[index].kota,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                18,
+                                                                            letterSpacing:
+                                                                                1,
+                                                                          ),
+                                                                        )),
                                                                         Container(
                                                                             margin:
                                                                                 EdgeInsets.only(top: 12),
@@ -683,7 +727,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                             margin:
                                                                                 EdgeInsets.only(top: 7),
                                                                             child: Text(
-                                                                              "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                              "Pegawai : " + arrbooking[index].namapegawai,
                                                                               style: TextStyle(
                                                                                 // fontWeight: FontWeight.bold,
                                                                                 fontSize: 15,
@@ -819,7 +863,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                   .circular(
                                                                       20.0),
                                                         ),
-                                                        height: MediaQuery.of(context).size.height - 610,
+                                                        height: MediaQuery.of(context).size.height - 575,
                                                         child: Column(
                                                           children: [
                                                             Container(
@@ -828,30 +872,53 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                       .fromLTRB(
                                                                           0,
                                                                           5,
-                                                                          20,
+                                                                          0,
                                                                           0),
                                                               width:
                                                                   MediaQuery.of(
                                                                           context)
                                                                       .size
                                                                       .width,
-                                                              child: Column(
+                                                              child: Row(
                                                                 crossAxisAlignment:
                                                                     CrossAxisAlignment
                                                                         .end,
                                                                 children: [
-                                                                  Text(
-                                                                    hri1[index]
-                                                                            .toString() +
-                                                                        " " +
-                                                                        arrbooking[index]
-                                                                            .tanggalbooking,
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .grey[600]),
+                                                                  Container(
+                                                                    padding: EdgeInsets
+                                                                        .only(
+                                                                            left:
+                                                                                15),
+                                                                    width: 240,
+                                                                    child: Text(
+                                                                      "Kode Pesanan : " +
+                                                                          arrbooking[index]
+                                                                              .kode_pesanan,
+                                                                      style: TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color:
+                                                                              Colors.grey[600]),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                    child: Text(
+                                                                      hri1[index]
+                                                                              .toString() +
+                                                                          " " +
+                                                                          arrbooking[index]
+                                                                              .tanggalbooking,
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.grey[600]),
+                                                                    ),
                                                                   ),
                                                                 ],
                                                               ),
+                                                            ),
+                                                            Divider(
+                                                              color:
+                                                                  Colors.grey,
                                                             ),
                                                             Container(
                                                               child: Row(
@@ -865,7 +932,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               10,
                                                                               0,
                                                                               10,
-                                                                              10),
+                                                                              0),
                                                                       child:
                                                                           ClipRRect(
                                                                         borderRadius:
@@ -878,7 +945,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           width:
                                                                               120.0,
                                                                           height:
-                                                                              120,
+                                                                              145,
                                                                           fit: BoxFit
                                                                               .cover,
                                                                         ),
@@ -890,7 +957,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                       child:
                                                                           Container(
                                                                         height:
-                                                                            130,
+                                                                            140,
                                                                         // color:
                                                                         // Colors.blue,
                                                                         child:
@@ -899,15 +966,15 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               CrossAxisAlignment.start,
                                                                           children: [
                                                                             Container(
-                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                //margin: EdgeInsets.only(top: 7),
                                                                                 child: Text(
-                                                                                  arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                  style: TextStyle(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: 18,
-                                                                                    letterSpacing: 1,
-                                                                                  ),
-                                                                                )),
+                                                                              arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                              style: TextStyle(
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 18,
+                                                                                letterSpacing: 1,
+                                                                              ),
+                                                                            )),
                                                                             Container(
                                                                                 margin: EdgeInsets.only(top: 12),
                                                                                 child: Text(
@@ -921,7 +988,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                             Container(
                                                                                 margin: EdgeInsets.only(top: 7),
                                                                                 child: Text(
-                                                                                  "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                  "Pegawai : " + arrbooking[index].namapegawai,
                                                                                   style: TextStyle(
                                                                                     // fontWeight: FontWeight.bold,
                                                                                     fontSize: 15,
@@ -1085,7 +1152,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                       .circular(
                                                                           20.0),
                                                             ),
-                                                            height: MediaQuery.of(context).size.height - 610,
+                                                            height: MediaQuery.of(context).size.height - 575,
                                                             child: Column(
                                                               children: [
                                                                 Container(
@@ -1093,27 +1160,47 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                       .fromLTRB(
                                                                           0,
                                                                           5,
-                                                                          20,
+                                                                          0,
                                                                           0),
                                                                   width: MediaQuery.of(
                                                                           context)
                                                                       .size
                                                                       .width,
-                                                                  child: Column(
+                                                                  child: Row(
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .end,
                                                                     children: [
-                                                                      Text(
-                                                                        hri1[index].toString() +
-                                                                            " " +
-                                                                            arrbooking[index].tanggalbooking,
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.grey[600]),
+                                                                      Container(
+                                                                        padding:
+                                                                            EdgeInsets.only(left: 15),
+                                                                        width:
+                                                                            240,
+                                                                        child:
+                                                                            Text(
+                                                                          "Kode Pesanan : " +
+                                                                              arrbooking[index].kode_pesanan,
+                                                                          style: TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.grey[600]),
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        child:
+                                                                            Text(
+                                                                          hri1[index].toString() +
+                                                                              " " +
+                                                                              arrbooking[index].tanggalbooking,
+                                                                          style:
+                                                                              TextStyle(color: Colors.grey[600]),
+                                                                        ),
                                                                       ),
                                                                     ],
                                                                   ),
+                                                                ),
+                                                                Divider(
+                                                                  color: Colors
+                                                                      .grey,
                                                                 ),
                                                                 Container(
                                                                   child: Row(
@@ -1126,7 +1213,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               10,
                                                                               0,
                                                                               10,
-                                                                              10),
+                                                                              0),
                                                                           child:
                                                                               ClipRRect(
                                                                             borderRadius:
@@ -1135,7 +1222,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                 Image.network(
                                                                               main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
                                                                               width: 120.0,
-                                                                              height: 120,
+                                                                              height: 145,
                                                                               fit: BoxFit.cover,
                                                                             ),
                                                                           ),
@@ -1147,7 +1234,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           child:
                                                                               Container(
                                                                             height:
-                                                                                130,
+                                                                                140,
                                                                             // color:
                                                                             // Colors.blue,
                                                                             child:
@@ -1155,15 +1242,15 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                                               children: [
                                                                                 Container(
-                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                    //margin: EdgeInsets.only(top: 7),
                                                                                     child: Text(
-                                                                                      arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                      style: TextStyle(
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                        fontSize: 18,
-                                                                                        letterSpacing: 1,
-                                                                                      ),
-                                                                                    )),
+                                                                                  arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                                  style: TextStyle(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontSize: 18,
+                                                                                    letterSpacing: 1,
+                                                                                  ),
+                                                                                )),
                                                                                 Container(
                                                                                     margin: EdgeInsets.only(top: 12),
                                                                                     child: Text(
@@ -1177,7 +1264,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                 Container(
                                                                                     margin: EdgeInsets.only(top: 7),
                                                                                     child: Text(
-                                                                                      "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                      "Pegawai : " + arrbooking[index].namapegawai,
                                                                                       style: TextStyle(
                                                                                         // fontWeight: FontWeight.bold,
                                                                                         fontSize: 15,
@@ -1339,7 +1426,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           .circular(
                                                                               20.0),
                                                                 ),
-                                                                height: MediaQuery.of(context).size.height - 610,
+                                                                height: MediaQuery.of(context).size.height - 575,
                                                                 child: Column(
                                                                   children: [
                                                                     Container(
@@ -1347,26 +1434,41 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           .fromLTRB(
                                                                               0,
                                                                               5,
-                                                                              20,
+                                                                              0,
                                                                               0),
                                                                       width: MediaQuery.of(
                                                                               context)
                                                                           .size
                                                                           .width,
                                                                       child:
-                                                                          Column(
+                                                                          Row(
                                                                         crossAxisAlignment:
                                                                             CrossAxisAlignment.end,
                                                                         children: [
-                                                                          Text(
-                                                                            hri1[index].toString() +
-                                                                                " " +
-                                                                                arrbooking[index].tanggalbooking,
-                                                                            style:
-                                                                                TextStyle(color: Colors.grey[600]),
+                                                                          Container(
+                                                                            padding:
+                                                                                EdgeInsets.only(left: 15),
+                                                                            width:
+                                                                                240,
+                                                                            child:
+                                                                                Text(
+                                                                              "Kode Pesanan : " + arrbooking[index].kode_pesanan,
+                                                                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                                                                            ),
+                                                                          ),
+                                                                          Container(
+                                                                            child:
+                                                                                Text(
+                                                                              hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                              style: TextStyle(color: Colors.grey[600]),
+                                                                            ),
                                                                           ),
                                                                         ],
                                                                       ),
+                                                                    ),
+                                                                    Divider(
+                                                                      color: Colors
+                                                                          .grey,
                                                                     ),
                                                                     Container(
                                                                       child:
@@ -1377,13 +1479,13 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                 2,
                                                                             child:
                                                                                 Container(
-                                                                              margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
                                                                               child: ClipRRect(
                                                                                 borderRadius: BorderRadius.circular(13.0),
                                                                                 child: Image.network(
                                                                                   main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
                                                                                   width: 120.0,
-                                                                                  height: 120,
+                                                                                  height: 145,
                                                                                   fit: BoxFit.cover,
                                                                                 ),
                                                                               ),
@@ -1392,22 +1494,22 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           Expanded(
                                                                               flex: 3,
                                                                               child: Container(
-                                                                                height: 130,
+                                                                                height: 140,
                                                                                 // color:
                                                                                 // Colors.blue,
                                                                                 child: Column(
                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                   children: [
                                                                                     Container(
-                                                                                        margin: EdgeInsets.only(top: 7),
+                                                                                        //margin: EdgeInsets.only(top: 7),
                                                                                         child: Text(
-                                                                                          arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                          style: TextStyle(
-                                                                                            fontWeight: FontWeight.bold,
-                                                                                            fontSize: 18,
-                                                                                            letterSpacing: 1,
-                                                                                          ),
-                                                                                        )),
+                                                                                      arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                                      style: TextStyle(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        fontSize: 18,
+                                                                                        letterSpacing: 1,
+                                                                                      ),
+                                                                                    )),
                                                                                     Container(
                                                                                         margin: EdgeInsets.only(top: 10),
                                                                                         child: Text(
@@ -1421,7 +1523,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                     Container(
                                                                                         margin: EdgeInsets.only(top: 5),
                                                                                         child: Text(
-                                                                                          "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                          "Pegawai : " + arrbooking[index].namapegawai,
                                                                                           style: TextStyle(
                                                                                             // fontWeight: FontWeight.bold,
                                                                                             fontSize: 15,
@@ -1579,29 +1681,43 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           BorderRadius.circular(
                                                                               20.0),
                                                                     ),
-                                                                    height: MediaQuery.of(context).size.height - 610,
+                                                                    height: MediaQuery.of(context).size.height - 575,
                                                                     child: Column(
                                                                       children: [
                                                                         Container(
                                                                           padding: EdgeInsets.fromLTRB(
                                                                               0,
                                                                               5,
-                                                                              20,
+                                                                              0,
                                                                               0),
                                                                           width: MediaQuery.of(context)
                                                                               .size
                                                                               .width,
                                                                           child:
-                                                                              Column(
+                                                                              Row(
                                                                             crossAxisAlignment:
                                                                                 CrossAxisAlignment.end,
                                                                             children: [
-                                                                              Text(
-                                                                                hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
-                                                                                style: TextStyle(color: Colors.grey[600]),
+                                                                              Container(
+                                                                                padding: EdgeInsets.only(left: 15),
+                                                                                width: 240,
+                                                                                child: Text(
+                                                                                  "Kode Pesanan : " + arrbooking[index].kode_pesanan,
+                                                                                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                                                                                ),
+                                                                              ),
+                                                                              Container(
+                                                                                child: Text(
+                                                                                  hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                  style: TextStyle(color: Colors.grey[600]),
+                                                                                ),
                                                                               ),
                                                                             ],
                                                                           ),
+                                                                        ),
+                                                                        Divider(
+                                                                          color:
+                                                                              Colors.grey,
                                                                         ),
                                                                         Container(
                                                                           child:
@@ -1610,13 +1726,13 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               Expanded(
                                                                                 flex: 2,
                                                                                 child: Container(
-                                                                                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                  margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
                                                                                   child: ClipRRect(
                                                                                     borderRadius: BorderRadius.circular(13.0),
                                                                                     child: Image.network(
                                                                                       main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
                                                                                       width: 120.0,
-                                                                                      height: 120,
+                                                                                      height: 145,
                                                                                       fit: BoxFit.cover,
                                                                                     ),
                                                                                   ),
@@ -1625,22 +1741,22 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               Expanded(
                                                                                   flex: 3,
                                                                                   child: Container(
-                                                                                    height: 130,
+                                                                                    height: 140,
                                                                                     // color:
                                                                                     // Colors.blue,
                                                                                     child: Column(
                                                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                                                       children: [
                                                                                         Container(
-                                                                                            margin: EdgeInsets.only(top: 7),
+                                                                                            //margin: EdgeInsets.only(top: 7),
                                                                                             child: Text(
-                                                                                              arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                              style: TextStyle(
-                                                                                                fontWeight: FontWeight.bold,
-                                                                                                fontSize: 18,
-                                                                                                letterSpacing: 1,
-                                                                                              ),
-                                                                                            )),
+                                                                                          arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.bold,
+                                                                                            fontSize: 18,
+                                                                                            letterSpacing: 1,
+                                                                                          ),
+                                                                                        )),
                                                                                         Container(
                                                                                             margin: EdgeInsets.only(top: 12),
                                                                                             child: Text(
@@ -1654,7 +1770,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                         Container(
                                                                                             margin: EdgeInsets.only(top: 7),
                                                                                             child: Text(
-                                                                                              "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                              "Pegawai : " + arrbooking[index].namapegawai,
                                                                                               style: TextStyle(
                                                                                                 // fontWeight: FontWeight.bold,
                                                                                                 fontSize: 15,
@@ -1746,7 +1862,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                     print("aaaaa");
                                                                                     myidupdate = arrbooking[index].id;
                                                                                     mystatus = "cancel";
-                                                                                    usernamecancel = arrbooking[index].requestpegawai;
+                                                                                    usernamecancel = arrbooking[index].namapegawai;
                                                                                     updatestatusbooking();
                                                                                   },
                                                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1772,21 +1888,34 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                           borderRadius:
                                                                               BorderRadius.circular(20.0),
                                                                         ),
-                                                                        height: MediaQuery.of(context).size.height - 610,
+                                                                        height: MediaQuery.of(context).size.height - 575,
                                                                         child: Column(
                                                                           children: [
                                                                             Container(
-                                                                              padding: EdgeInsets.fromLTRB(0, 5, 20, 0),
+                                                                              padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
                                                                               width: MediaQuery.of(context).size.width,
-                                                                              child: Column(
+                                                                              child: Row(
                                                                                 crossAxisAlignment: CrossAxisAlignment.end,
                                                                                 children: [
-                                                                                  Text(
-                                                                                    hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
-                                                                                    style: TextStyle(color: Colors.grey[600]),
+                                                                                  Container(
+                                                                                    padding: EdgeInsets.only(left: 15),
+                                                                                    width: 240,
+                                                                                    child: Text(
+                                                                                      "Kode Pesanan : " + arrbooking[index].kode_pesanan,
+                                                                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Container(
+                                                                                    child: Text(
+                                                                                      hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                      style: TextStyle(color: Colors.grey[600]),
+                                                                                    ),
                                                                                   ),
                                                                                 ],
                                                                               ),
+                                                                            ),
+                                                                            Divider(
+                                                                              color: Colors.grey,
                                                                             ),
                                                                             Container(
                                                                               child: Row(
@@ -1794,13 +1923,13 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                   Expanded(
                                                                                     flex: 2,
                                                                                     child: Container(
-                                                                                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
                                                                                       child: ClipRRect(
                                                                                         borderRadius: BorderRadius.circular(13.0),
                                                                                         child: Image.network(
                                                                                           main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
                                                                                           width: 120.0,
-                                                                                          height: 120,
+                                                                                          height: 145,
                                                                                           fit: BoxFit.cover,
                                                                                         ),
                                                                                       ),
@@ -1809,22 +1938,22 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                   Expanded(
                                                                                       flex: 3,
                                                                                       child: Container(
-                                                                                        height: 130,
+                                                                                        height: 140,
                                                                                         // color:
                                                                                         // Colors.blue,
                                                                                         child: Column(
                                                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                                                           children: [
                                                                                             Container(
-                                                                                                margin: EdgeInsets.only(top: 7),
+                                                                                                //margin: EdgeInsets.only(top: 7),
                                                                                                 child: Text(
-                                                                                                  arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                                  style: TextStyle(
-                                                                                                    fontWeight: FontWeight.bold,
-                                                                                                    fontSize: 18,
-                                                                                                    letterSpacing: 1,
-                                                                                                  ),
-                                                                                                )),
+                                                                                              arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                                              style: TextStyle(
+                                                                                                fontWeight: FontWeight.bold,
+                                                                                                fontSize: 18,
+                                                                                                letterSpacing: 1,
+                                                                                              ),
+                                                                                            )),
                                                                                             Container(
                                                                                                 margin: EdgeInsets.only(top: 10),
                                                                                                 child: Text(
@@ -1838,7 +1967,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                             Container(
                                                                                                 margin: EdgeInsets.only(top: 5),
                                                                                                 child: Text(
-                                                                                                  "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                                  "Pegawai : " + arrbooking[index].namapegawai,
                                                                                                   style: TextStyle(
                                                                                                     // fontWeight: FontWeight.bold,
                                                                                                     fontSize: 15,
@@ -1958,7 +2087,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                         print("aaaaa");
                                                                                         myidupdate = arrbooking[index].id;
                                                                                         mystatus = "cancel";
-                                                                                        usernamecancel = arrbooking[index].requestpegawai;
+                                                                                        usernamecancel = arrbooking[index].namapegawai;
                                                                                         updatestatusbooking();
                                                                                       },
                                                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1982,21 +2111,34 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               color: Colors.white,
                                                                               borderRadius: BorderRadius.circular(20.0),
                                                                             ),
-                                                                            height: MediaQuery.of(context).size.height - 610,
+                                                                            height: MediaQuery.of(context).size.height - 575,
                                                                             child: Column(
                                                                               children: [
                                                                                 Container(
-                                                                                  padding: EdgeInsets.fromLTRB(0, 5, 20, 0),
+                                                                                  padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
                                                                                   width: MediaQuery.of(context).size.width,
-                                                                                  child: Column(
+                                                                                  child: Row(
                                                                                     crossAxisAlignment: CrossAxisAlignment.end,
                                                                                     children: [
-                                                                                      Text(
-                                                                                        hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
-                                                                                        style: TextStyle(color: Colors.grey[600]),
+                                                                                      Container(
+                                                                                        padding: EdgeInsets.only(left: 15),
+                                                                                        width: 240,
+                                                                                        child: Text(
+                                                                                          "Kode Pesanan : " + arrbooking[index].kode_pesanan,
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                                                                                        ),
+                                                                                      ),
+                                                                                      Container(
+                                                                                        child: Text(
+                                                                                          hri1[index].toString() + " " + arrbooking[index].tanggalbooking,
+                                                                                          style: TextStyle(color: Colors.grey[600]),
+                                                                                        ),
                                                                                       ),
                                                                                     ],
                                                                                   ),
+                                                                                ),
+                                                                                Divider(
+                                                                                  color: Colors.grey,
                                                                                 ),
                                                                                 Container(
                                                                                   child: Row(
@@ -2004,13 +2146,13 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                       Expanded(
                                                                                         flex: 2,
                                                                                         child: Container(
-                                                                                          margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                                                                          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
                                                                                           child: ClipRRect(
                                                                                             borderRadius: BorderRadius.circular(13.0),
                                                                                             child: Image.network(
                                                                                               main_variable.ipnumber + "/gambar/" + arrbooking[index].foto,
                                                                                               width: 120.0,
-                                                                                              height: 120,
+                                                                                              height: 145,
                                                                                               fit: BoxFit.cover,
                                                                                             ),
                                                                                           ),
@@ -2019,22 +2161,22 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                       Expanded(
                                                                                           flex: 3,
                                                                                           child: Container(
-                                                                                            height: 130,
+                                                                                            height: 140,
                                                                                             // color:
                                                                                             // Colors.blue,
                                                                                             child: Column(
                                                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                                                               children: [
                                                                                                 Container(
-                                                                                                    margin: EdgeInsets.only(top: 7),
+                                                                                                    //margin: EdgeInsets.only(top: 7),
                                                                                                     child: Text(
-                                                                                                      arrbooking[index].usernamesalon + " - " + arrbooking[index].kota,
-                                                                                                      style: TextStyle(
-                                                                                                        fontWeight: FontWeight.bold,
-                                                                                                        fontSize: 18,
-                                                                                                        letterSpacing: 1,
-                                                                                                      ),
-                                                                                                    )),
+                                                                                                  arrbooking[index].namasalon + " - " + arrbooking[index].kota,
+                                                                                                  style: TextStyle(
+                                                                                                    fontWeight: FontWeight.bold,
+                                                                                                    fontSize: 18,
+                                                                                                    letterSpacing: 1,
+                                                                                                  ),
+                                                                                                )),
                                                                                                 Container(
                                                                                                     margin: EdgeInsets.only(top: 12),
                                                                                                     child: Text(
@@ -2048,7 +2190,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                                                 Container(
                                                                                                     margin: EdgeInsets.only(top: 7),
                                                                                                     child: Text(
-                                                                                                      "Pegawai : " + arrbooking[index].requestpegawai,
+                                                                                                      "Pegawai : " + arrbooking[index].namapegawai,
                                                                                                       style: TextStyle(
                                                                                                         // fontWeight: FontWeight.bold,
                                                                                                         fontSize: 15,
@@ -2345,7 +2487,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                   print("ini jum arrboking.length " +
                                                                       arrselesai[
                                                                               index]
-                                                                          .usernamesalon
+                                                                          .namasalon
                                                                           .toString());
                                                                 },
                                                                 child: Stack(
@@ -2397,7 +2539,7 @@ class PesanansayaState extends State<Pesanansaya> {
                                                                               children: [
                                                                                 Container(
                                                                                   child: Text(
-                                                                                    arrselesai[index].usernamesalon,
+                                                                                    arrselesai[index].namasalon,
                                                                                     style: TextStyle(
                                                                                       fontSize: 18.0,
                                                                                       fontWeight: FontWeight.w600,

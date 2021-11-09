@@ -78,7 +78,8 @@ class HomememberState extends State<Homemember> {
           "status",
           "namasalon",
           "kota",
-          "alamat"));
+          "alamat",
+          'username'));
       arruser.add(new ClassUser(
           "email",
           "username",
@@ -98,7 +99,10 @@ class HomememberState extends State<Homemember> {
     getallsalonuser();
     getalliklansalon();
     getuser();
-    print("ini userlogin : " + main_variable.userlogin);
+    print("ini userlogin : " +
+        main_variable.userlogin +
+        ' - ' +
+        main_variable.kotauser);
   }
 
   Text _buildRatingStars(int rating) {
@@ -214,7 +218,7 @@ class HomememberState extends State<Homemember> {
         ClassSalonJoinIklan databaru = new ClassSalonJoinIklan(
             data[i]['idiklan'].toString(),
             data[i]['tanggal'].toString(),
-            data[i]['username'].toString(),
+            data[i]['idsalon'].toString(),
             data[i]['hargaiklan'].toString(),
             data[i]['tanggal_awal'].toString(),
             data[i]['tanggal_akhir'].toString(),
@@ -222,7 +226,8 @@ class HomememberState extends State<Homemember> {
             data[i]['status'].toString(),
             data[i]['namasalon'].toString(),
             data[i]['kota'].toString(),
-            data[i]['alamat'].toString());
+            data[i]['alamat'].toString(),
+            data[i]['username'].toString());
         arrtemp.add(databaru);
         foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
       }
@@ -321,6 +326,169 @@ class HomememberState extends State<Homemember> {
                 ),
                 Column(
                   children: <Widget>[
+                    //ini itampilan salon yang bayar iklan
+                    SizedBox(
+                      height: 20,
+                    ),
+                    CarouselSlider(
+                        items: arrsaloniklan.map((ClassSalonJoinIklan j) {
+                          return Builder(
+                            builder: (BuildContext context) {
+                              return Container(
+                                  width: 400,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 2.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.transparent,
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black.withOpacity(0.4),
+                                          blurRadius: 2),
+                                    ],
+                                  ),
+                                  child: SizedBox(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        main_variable.usernamesalon =
+                                            arrsaloniklan[
+                                                    _selectedIndexcarousel]
+                                                .username;
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => DetailSalon(
+                                                namasalonkirim: arrsaloniklan[
+                                                        _selectedIndexcarousel]
+                                                    .namasalon,
+                                                idsalon: arrsaloniklan[
+                                                        _selectedIndexcarousel]
+                                                    .idsalon,
+                                                kotakrim: arrsaloniklan[
+                                                        _selectedIndexcarousel]
+                                                    .kota,
+                                              ),
+                                            ));
+                                      },
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: Image.network(
+                                              main_variable.ipnumber +
+                                                  "/gambar/" +
+                                                  j.foto,
+                                              width: 500,
+                                              height: 200,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          // Container(
+                                          //   margin: EdgeInsets.fromLTRB(
+                                          //       10, 125, 0, 0),
+                                          //   child: Text(
+                                          //     j.namasalon,
+                                          //     style: TextStyle(
+                                          //       fontSize: 16.0,
+                                          //       color: Colors.black,
+                                          //       fontWeight: FontWeight.bold,
+                                          //       fontStyle: FontStyle.italic,
+                                          //       //fontWeight: FontWeight.bold,
+                                          //       letterSpacing: 1.5,
+                                          //       shadows: <Shadow>[
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 1.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 2.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //       ],
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // Container(
+                                          //   margin: EdgeInsets.fromLTRB(
+                                          //       10, 143, 0, 0),
+                                          //   child: Text(
+                                          //     j.alamat,
+                                          //     style: TextStyle(
+                                          //       fontSize: 12.0,
+                                          //       color: Colors.black,
+                                          //       fontStyle: FontStyle.italic,
+                                          //       //fontWeight: FontWeight.bold,
+                                          //       letterSpacing: 1.5,
+                                          //       shadows: <Shadow>[
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 1.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 2.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //       ],
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // Container(
+                                          //   margin: EdgeInsets.fromLTRB(
+                                          //       10, 157, 0, 0),
+                                          //   child: Text(
+                                          //     j.kota,
+                                          //     style: TextStyle(
+                                          //       fontSize: 12.0,
+                                          //       color: Colors.black,
+                                          //       fontStyle: FontStyle.italic,
+                                          //       //fontWeight: FontWeight.bold,
+                                          //       letterSpacing: 1.5,
+                                          //       shadows: <Shadow>[
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 1.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //         Shadow(
+                                          //           offset: Offset(1.0, 1.0),
+                                          //           blurRadius: 2.0,
+                                          //           color: Colors.white,
+                                          //         ),
+                                          //       ],
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                        ],
+                                      ),
+                                    ),
+                                  ));
+                            },
+                          );
+                        }).toList(),
+                        options: CarouselOptions(
+                          height: 200,
+                          aspectRatio: 18 / 9,
+                          viewportFraction: 0.8,
+                          initialPage: 0,
+                          enableInfiniteScroll: true,
+                          reverse: false,
+                          autoPlay: true,
+                          autoPlayInterval: Duration(seconds: 3),
+                          autoPlayAnimationDuration:
+                              Duration(milliseconds: 200),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                          enlargeCenterPage: true,
+                          onPageChanged: (prev, next) {
+                            _selectedIndexcarousel = prev;
+                          },
+                          scrollDirection: Axis.horizontal,
+                        )),
+
                     // Text("test")
                     Container(
                       height: 240,
@@ -836,19 +1004,23 @@ class HomememberState extends State<Homemember> {
                               child: SizedBox(
                                 child: GestureDetector(
                                   onTap: () {
-                                    main_variable.usernamesalon =
-                                        arrsaloniklan[_selectedIndexcarousel]
-                                            .username;
+                                    main_variable.usernamesalon = j.username;
+                                    main_variable.idsalonlogin = j.idsalon;
+                                    print('namasalon : ' +
+                                        j.namasalon +
+                                        ' - idsalon :  ' +
+                                        j.idsalon +
+                                        ' -kotasalon : ' +
+                                        j.kota);
+                                    print('ini selectec index car : ' +
+                                        _selectedIndexcarousel.toString());
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => DetailSalon(
-                                            namasalonkirim: arrsaloniklan[
-                                                    _selectedIndexcarousel]
-                                                .namasalon,
-                                            kotakrim: arrsaloniklan[
-                                                    _selectedIndexcarousel]
-                                                .kota,
+                                            namasalonkirim: j.namasalon,
+                                            idsalon: j.idsalon,
+                                            kotakrim: j.kota,
                                           ),
                                         ));
                                   },
@@ -959,10 +1131,10 @@ class HomememberState extends State<Homemember> {
                       initialPage: 0,
                       enableInfiniteScroll: true,
                       reverse: false,
-                      autoPlay: true,
-                      autoPlayInterval: Duration(seconds: 3),
-                      autoPlayAnimationDuration: Duration(milliseconds: 200),
-                      autoPlayCurve: Curves.fastOutSlowIn,
+                      //autoPlay: true,
+                      //autoPlayInterval: Duration(seconds: 3),
+                      //autoPlayAnimationDuration: Duration(milliseconds: 200),
+                      //autoPlayCurve: Curves.fastOutSlowIn,
                       enlargeCenterPage: true,
                       onPageChanged: (prev, next) {
                         _selectedIndexcarousel = prev;
@@ -1208,7 +1380,7 @@ class HomememberState extends State<Homemember> {
                                   vertical: 10.0, horizontal: 2.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.amber,
+                                //color: Colors.amber,
                                 boxShadow: [
                                   BoxShadow(
                                       color: Colors.black.withOpacity(0.4),

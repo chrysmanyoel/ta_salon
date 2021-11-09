@@ -47,6 +47,11 @@ dev_dependencies:
   intl: ^0.17.0
   animated_theme_switcher: ^1.0.5
   image_picker: 0.5.0+3
+  webview_flutter: ^0.3.22+1
+  # flutter_web_view: ^0.0.6
+  rflutter_alert: ^1.0.3
+  url_launcher: ^5.5.0
+  jiffy: ^4.1.0
   
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

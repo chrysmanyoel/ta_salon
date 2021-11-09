@@ -1,24 +1,29 @@
 class ClassLayanansalon {
   String id,
+      idsalon,
       username,
       namalayanan,
+      jumlah_kursi,
       peruntukan,
       jenjangusia,
-      kategori,
+      idkategori,
       hargapriadewasa,
       harganwanitadewasa,
       hargawanitaanak,
       hargapriaanak,
       durasi,
       deskripsi,
-      status;
+      status,
+      keterlambatan_waktu,
+      foto;
 
   ClassLayanansalon(
       this.id,
+      this.idsalon,
       this.username,
       this.namalayanan,
       this.peruntukan,
-      this.kategori,
+      this.idkategori,
       this.jenjangusia,
       this.durasi,
       this.deskripsi,
@@ -26,5 +31,8 @@ class ClassLayanansalon {
       this.hargapriadewasa,
       this.harganwanitadewasa,
       this.hargapriaanak,
-      this.hargawanitaanak);
+      this.hargawanitaanak,
+      this.jumlah_kursi,
+      this.keterlambatan_waktu,
+      this.foto);
 }

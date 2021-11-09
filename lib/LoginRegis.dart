@@ -100,17 +100,48 @@ class LoginRegisState extends State<LoginRegis> {
       'username': myUsername.text,
     };
     var parameter = json.encode(paramData);
+    ClassUser databaru = new ClassUser(
+        "email",
+        "username",
+        "password",
+        "nama",
+        "alamat",
+        "kota",
+        "telp",
+        "foto",
+        "saldo",
+        "tgllahir",
+        "jeniskelamin",
+        "role",
+        "status");
+
     http
         .post(main_variable.ipnumber + "/login",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
       var data = json.decode(res.body);
-      print(res.body);
-      main_variable.userlogin = myUsername.text;
-
       data = data[0]['status'];
+
+      databaru = ClassUser(
+          data[0]['email'].toString(),
+          data[0]['username'].toString(),
+          data[0]['password'].toString(),
+          data[0]['nama'].toString(),
+          data[0]['alamat'].toString(),
+          data[0]['kota'].toString(),
+          data[0]['telp'].toString(),
+          data[0]['foto'].toString(),
+          data[0]['saldo'].toString(),
+          data[0]['tgllahir'].toString(),
+          data[0]['jenikelamin'].toString(),
+          data[0]['role'].toString(),
+          data[0]['status'].toString());
+
+      main_variable.userlogin = databaru.username;
+      main_variable.kotauser = databaru.kota;
+
       print(data);
-      if (data[0]['role'] == "admin") {
+      if (databaru.role == "admin") {
         autoselesai();
         pre.setString("username", data[0]['username'].toString());
         pre.setString("role", data[0]['role'].toString());
@@ -126,7 +157,7 @@ class LoginRegisState extends State<LoginRegis> {
             backgroundColor: Colors.blue[300],
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (data[0]['role'] == "member" && data[0]['status'] == "aktif") {
+      } else if (databaru.role == "member" && databaru.status == "aktif") {
         autoselesai();
         pre.setString("username", data[0]['username'].toString());
         pre.setString("role", data[0]['role'].toString());
@@ -145,8 +176,8 @@ class LoginRegisState extends State<LoginRegis> {
             backgroundColor: Colors.blue[300],
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (data[0]['role'] == "salon" && data[0]['status'] == "aktif" ||
-          data[0]['status'] == "tutup") {
+      } else if (databaru.role == "salon" && databaru.status == "aktif" ||
+          databaru.status == "tutup") {
         autoselesai();
         pre.setString("username", data[0]['username'].toString());
         pre.setString("role", data[0]['role'].toString());
@@ -180,17 +211,46 @@ class LoginRegisState extends State<LoginRegis> {
       'username': myUsername.text,
     };
     var parameter = json.encode(paramData);
+    ClassUser databaru = new ClassUser(
+        "email",
+        "username",
+        "password",
+        "nama",
+        "alamat",
+        "kota",
+        "telp",
+        "foto",
+        "saldo",
+        "tgllahir",
+        "jeniskelamin",
+        "role",
+        "status");
     http
         .post(main_variable.ipnumber + "/login",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
       var data = json.decode(res.body);
-      print(res.body);
-      main_variable.userlogin = myUsername.text;
-
+      var data1 = data[0]['idsalon'];
       data = data[0]['status'];
-      print(data);
-      if (data[0]['role'] == "admin") {
+
+      databaru = ClassUser(
+          data[0]['email'].toString(),
+          data[0]['username'].toString(),
+          data[0]['password'].toString(),
+          data[0]['nama'].toString(),
+          data[0]['alamat'].toString(),
+          data[0]['kota'].toString(),
+          data[0]['telp'].toString(),
+          data[0]['foto'].toString(),
+          data[0]['saldo'].toString(),
+          data[0]['tgllahir'].toString(),
+          data[0]['jenikelamin'].toString(),
+          data[0]['role'].toString(),
+          data[0]['status'].toString());
+      main_variable.userlogin = databaru.username;
+      main_variable.kotauser = databaru.kota;
+
+      if (databaru.role == "admin") {
         autoselesai();
         Navigator.push(
             context,
@@ -204,9 +264,10 @@ class LoginRegisState extends State<LoginRegis> {
             backgroundColor: Colors.blue[300],
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (data[0]['role'] == "member" && data[0]['status'] == "aktif") {
+        return data;
+      } else if (databaru.role == "member" && databaru.status == "aktif") {
         autoselesai();
-        main_variable.namauser = data[0]['nama'];
+        main_variable.namauser = databaru.nama;
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -219,9 +280,11 @@ class LoginRegisState extends State<LoginRegis> {
             backgroundColor: Colors.blue[300],
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (data[0]['role'] == "salon" && data[0]['status'] == "aktif" ||
-          data[0]['status'] == "tutup") {
-        autoselesai();
+        return data1;
+      } else if (databaru.role == "salon" && databaru.status == "aktif" ||
+          databaru.status == "tutup") {
+        main_variable.idsalonlogin = data.toString();
+        //print('object1 ' + main_variable.idsalonlogin);
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -234,14 +297,15 @@ class LoginRegisState extends State<LoginRegis> {
             backgroundColor: Colors.blue[300],
             textColor: Colors.white,
             fontSize: 16.0);
+        return data;
       } else {
-        alertnonaktif(this.context);
+        print('object');
+        return alertnonaktif(this.context);
       }
     }).catchError((err) {
-      alertgagal(this.context);
+      return alertgagal(this.context);
       print(err);
     });
-    return "";
   }
 
   Future<String> getrole() async {
@@ -371,7 +435,7 @@ class LoginRegisState extends State<LoginRegis> {
       print(res.body);
 
       if (res.body.contains("sukses")) {
-        Fluttertoast.showToast(msg: "Berhasil Login");
+        Fluttertoast.showToast(msg: "Berhasil Register");
         print("Berhasil Register");
       } else {
         print("Register gagal");
@@ -659,8 +723,7 @@ class LoginRegisState extends State<LoginRegis> {
                   }
 
                   getrole();
-                  print("ini email : " + myEmail.text.toString());
-                  //print("ini username : " + myUsername.text.toString());
+                  print("ini username : " + myUsername.text.toString());
                   print("ini password : " + myPassword.text.toString());
                 },
                 shape: RoundedRectangleBorder(
@@ -901,19 +964,21 @@ class LoginRegisState extends State<LoginRegis> {
               child: RaisedButton(
                 onPressed: () {
                   if (roleuser == "salon") {
+                    // print('masuk salon : ');
                     insertsalon();
+                    tambahUser();
+                  } else {
+                    // print('masuk member: ');
+                    tambahUser();
                   }
                   if (isRememberMe == true) {
                     datauser();
-                    tambahUser();
-                  } else {
-                    tambahUser();
                   }
-                  print("ini jk : " + jeniskelamin);
-                  print("ini role user : " + roleuser);
-                  print("ini email : " + myEmail.text);
-                  print("ini username : " + myUsername.text);
-                  print("ini password : " + myPassword.text);
+                  // print("ini jk : " + jeniskelamin);
+                  // print("ini role user : " + roleuser);
+                  // print("ini email : " + myEmail.text);
+                  // print("ini username : " + myUsername.text);
+                  // print("ini password : " + myPassword.text);
                 },
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(80.0)),

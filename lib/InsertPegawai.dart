@@ -65,9 +65,9 @@ class InsertPegawaiState extends State<InsertPegawai> {
   String kirimidpeg_absen = "";
   int _radioValue = 0;
 
-  List<ClassPegawai> arrpegawai = new List();
+  List<ClassPegawai> arrpegawai = new List(); //INI DIPAKE BUAT COMBOBOX ABSEN
   List<ClassAbsensiPegawai> arrabsen = new List();
-  List<ClassDataPegawai> arrdatapeg = new List();
+  List<ClassDataPegawai> arrdatapeg = new List(); //INI DIPAKE BUAT TAMBAH SKILL
   List<ClassLayanansalon> arr = new List();
   List<ClassKategori> arrkategori = new List();
   List<ClassKategori> arridkategori = new List();
@@ -333,7 +333,25 @@ class InsertPegawaiState extends State<InsertPegawai> {
       var data = json.decode(res.body);
       data = data[0]['status'];
 
-      return "";
+      if (data == "sukses") {
+        Fluttertoast.showToast(
+            msg: "Pegawai Berhasil Di Input",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.blue,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Gagal Input Pegawai",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+
+      return data;
     }).catchError((err) {
       print(err);
     });
@@ -1810,13 +1828,13 @@ class InsertPegawaiState extends State<InsertPegawai> {
                                                       element.telp.toString())),
                                                   DataCell(Text(element
                                                               .idkategori
-                                                              .length >
-                                                          0
-                                                      ? element.idkategori
-                                                          .toString()
+                                                              .isEmpty ||
+                                                          element.idkategori ==
+                                                              null
+                                                      ? "-"
                                                       : element.idkategori
                                                               .toString() +
-                                                          "-")),
+                                                          ",")),
                                                 ]))
                                             .toList(),
                                       ),

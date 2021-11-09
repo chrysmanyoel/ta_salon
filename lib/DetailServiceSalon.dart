@@ -71,26 +71,31 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
   ClassPilihJenjangPeruntukan selectedarr = null;
   ClassPegawai selectarrpeg = null;
   bool _like = false;
-  ClassLayanansalon datalama =
-      new ClassLayanansalon("", "", "", "", "", "", "", "", "", "", "", "", "");
+  ClassLayanansalon datalama = new ClassLayanansalon(
+      "", "", '', "", "", "", "", "", "", "", "", "", "", "", '', '', '');
+  String foto = main_variable.ipnumber + "/gambar/default.png";
 
   void initState() {
     super.initState();
     setState(() {
       arr.add(new ClassLayanansalon(
           "id",
+          "0",
           "username",
           "namalayanan",
+          "0",
           "peruntukan",
-          "kategori",
+          "0",
           "jenjangusia",
-          "durasi",
+          "0",
           "deskripsi",
           "status",
           "0",
           "0",
           "0",
-          "0"));
+          "0",
+          "0",
+          "default.png"));
       arrbooking.add(new ClassBookingService(
           "id",
           "tanggal",
@@ -225,8 +230,6 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         .then((res) {
       var data = json.decode(res.body);
       data = data[0]['status'];
-      print(res.body);
-      print(data.length);
 
       for (int i = 0; i < data.length; i++) {
         ClassUser databaru = new ClassUser(
@@ -259,7 +262,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
   Future<ClassLayanansalon> getlayanansalondetail() async {
     List<ClassLayanansalon> arrtemp = new List();
     Map paramData = {
-      'username': main_variable.usernamesalon,
+      'idsalon': main_variable.idsalonlogin,
       'namalayanan': namaservicekirim.toString(),
     };
     var parameter = json.encode(paramData);
@@ -270,15 +273,15 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
       var data = json.decode(res.body);
       data = data[0]['status'];
       print(res.body);
-      print(data.length);
 
       for (int i = 0; i < data.length; i++) {
         ClassLayanansalon databaru = new ClassLayanansalon(
             data[i]['id'].toString(),
+            data[i]['idsalon'].toString(),
             data[i]['username'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['peruntukan'].toString(),
-            data[i]['kategori'].toString(),
+            data[i]['idkategori'].toString(),
             data[i]['jenjangusia'].toString(),
             data[i]['durasi'].toString(),
             data[i]['deskripsi'].toString(),
@@ -286,11 +289,16 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
             data[i]['hargapriadewasa'].toString(),
             data[i]['hargawanitadewasa'].toString(),
             data[i]['hargapriaanak'].toString(),
-            data[i]['hargawanitaanak'].toString());
+            data[i]['hargawanitaanak'].toString(),
+            data[i]['jumlah_kursi'].toString(),
+            data[i]['toleransi_keterlambatan'].toString(),
+            data[i]['foto'].toString());
         arrtemp.add(databaru);
+        foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
       }
       setState(() => this.arr = arrtemp);
       print("ini arr : " + this.arr.length.toString());
+      print("aple " + this.arr[0].keterlambatan_waktu.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -301,7 +309,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
   Future<ClassPilihJenjangPeruntukan> getperuntukanjenjang() async {
     List<ClassPilihJenjangPeruntukan> arrtemp = new List();
     Map paramData = {
-      'username': main_variable.usernamesalon,
+      'idsalon': main_variable.idsalonlogin,
       'namalayanan': namaservicekirim.toString(),
     };
     var parameter = json.encode(paramData);
@@ -309,8 +317,10 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         .post(main_variable.ipnumber + "/getlayanansalondetail",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
+      print("bb" + res.body);
       var data = json.decode(res.body);
       data = data[0]['status'];
+      print("b" + data.length.toString());
 
       for (int i = 0; i < data.length; i++) {
         if (data[i]['hargawanitadewasa'].toString() != "0") {
@@ -353,11 +363,11 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
       'username': main_variable.userlogin,
       'idservice': idservice.toString(),
       'namauser': myNamauser.text,
-      'usernamesalon': main_variable.usernamesalon,
+      'idsalon': main_variable.idsalonlogin,
       'tanggalbooking': myTgl.text,
       'jambooking': myTime.text,
       'total': total,
-      'requestpegawai': myMua.text,
+      'idpegawai': myMua.text,
       'pembayaran': pembayarankirim,
     };
     var parameter = json.encode(paramData);
@@ -383,15 +393,49 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         .post(main_variable.ipnumber + "/insertbookingservice",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
+      //print(res.body.substring(100));
+      print("d " + res.body.toString());
       var data = json.decode(res.body);
       data = data[0]['status'];
+
+      print("d " + data.length.toString());
 
       print(data.toString());
 
       if (data == "sukses") {
-        Fluttertoast.showToast(msg: "Berhasil Booking");
-      } else {
-        Fluttertoast.showToast(msg: "Gagal Booking, Jadwal tidak tersedia");
+        Fluttertoast.showToast(
+            msg: "Berhasil Membuat Jadwal Booking",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.blue[300],
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (data == "tutup") {
+        Fluttertoast.showToast(
+            msg: "Gagal Booking, Salon Sedang Tutup",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red[300],
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+      //kalo mau semua pending bisa tetep input maka di controler -2 diganti input ke boooking service dan yang ini di ubah message nya jadi berhasil booking
+      else if (data == "-2") {
+        Fluttertoast.showToast(
+            msg: "Gagal Booking, Pegawai Sedang Berhalangan",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red[300],
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (data == "-1") {
+        Fluttertoast.showToast(
+            msg: "Gagal Booking, Jam Tersebut Telah Penuh",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red[300],
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
 
       return data;
@@ -413,6 +457,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
         .then((res) {
       var data = json.decode(res.body);
       data = data[0]['status'];
+      print("c " + data.length.toString());
 
       for (int i = 0; i < data.length; i++) {
         ClassPegawai databaru = new ClassPegawai(
@@ -433,73 +478,6 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
     });
   }
 
-  showDialogFunc(context, img, title, desc) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Center(
-          child: Material(
-            type: MaterialType.transparency,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-              height: 280,
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: Image.asset(
-                      img,
-                      width: 150,
-                      height: 150,
-                    ),
-                  ),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    //width: 200,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        desc,
-                        maxLines: 3,
-                        style: TextStyle(fontSize: 15, color: Colors.grey[500]),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // buildTextButton(MaterialCommunityIcons.check, "",
-                      //     Warnalayer.facebookColor),
-                      // buildTextButton1(MaterialCommunityIcons.close, "",
-                      //     Warnalayer.googleColor)
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -512,26 +490,17 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
           child: Stack(
             children: <Widget>[
               Container(
-                height: height * 0.55,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage("images/background.png"),
-                        fit: BoxFit.cover)),
-                child: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    Colors.black.withOpacity(0.9),
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.0),
-                    Colors.black.withOpacity(0.0),
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.9),
-                  ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                height: height * 0.35,
+                child: Image.network(
+                  main_variable.ipnumber + "/gambar/" + arr[0].foto,
+                  width: MediaQuery.of(context).size.width,
+                  //fit: BoxFit.contain,
+                  fit: BoxFit.cover,
                 ),
               ),
               Container(
                 width: width,
-                margin: EdgeInsets.only(top: height * 0.4),
+                margin: EdgeInsets.only(top: height * 0.3),
                 padding: EdgeInsets.all(30),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -1146,7 +1115,9 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
                       child: Text(
                         myTime.text == ""
                             ? ""
-                            : "*Batas Keterlambatan waktu 10 menit",
+                            : "*Batas Keterlambatan waktu " +
+                                arr[0].keterlambatan_waktu +
+                                " menit",
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -1220,7 +1191,7 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
                         onChanged: (ClassPegawai Value) {
                           setState(() {
                             selectarrpeg = Value;
-                            myMua.text = Value.nama;
+                            myMua.text = Value.id;
                           });
                         },
                         items: arrpegawai.map((ClassPegawai arrpegawai) {
@@ -1324,10 +1295,11 @@ class DetailServiceSalonState extends State<DetailServiceSalon> {
                         RaisedButton(
                           onPressed: () {
                             // print("ini mua : " + myMua.text);
-                            // print("ini time : " + myTime.text);
+                            // print("ini time : " + main_variable.idsalonlogin);
                             // print("ini date : " + myTgl.text);
-                            //print(main_variable.namauser);
+//                            print(pembayarankirim);
                             insertbookingservice();
+
                             //showDialogFunc(context, "images/background.png",
                             //   "INI JUDUL", "Deskripsi");
                           },

@@ -3,11 +3,11 @@ class ClassListBookingWithLayanan {
       tanggal,
       username,
       namauser,
-      usernamesalon,
+      namasalon,
       idservice,
       tanggalbooking,
       jambooking,
-      requestpegawai,
+      namapegawai,
       total,
       namalayanan,
       status,
@@ -19,18 +19,21 @@ class ClassListBookingWithLayanan {
       jamres,
       tglres,
       statusreschedule,
-      jamresselesai;
+      jamresselesai,
+      kode_pesanan,
+      keterangan,
+      toleransi_keterlambatan;
 
   ClassListBookingWithLayanan(
       this.id,
       this.tanggal,
       this.username,
       this.namauser,
-      this.usernamesalon,
+      this.namasalon,
       this.idservice,
       this.tanggalbooking,
       this.jambooking,
-      this.requestpegawai,
+      this.namapegawai,
       this.total,
       this.namalayanan,
       this.status,
@@ -42,5 +45,8 @@ class ClassListBookingWithLayanan {
       this.jamres,
       this.tglres,
       this.statusreschedule,
-      this.jamresselesai);
+      this.jamresselesai,
+      this.kode_pesanan,
+      this.keterangan,
+      this.toleransi_keterlambatan);
 }

@@ -65,8 +65,8 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
   int _radioValue = 0;
 
   ClassPilihJenjangPeruntukan selectedarr = null;
-  ClassLayanansalon datalama =
-      new ClassLayanansalon("", "", "", "", "", "", "", "", "", "", "", "", "");
+  ClassLayanansalon datalama = new ClassLayanansalon(
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", '', '', '');
 
   TextEditingController myTgl = new TextEditingController();
   TextEditingController myTime = new TextEditingController();
@@ -115,10 +115,12 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
           "jamres"));
       arr.add(new ClassLayanansalon(
           "id",
+          "0",
           "username",
           "namalayanan",
+          "0",
           "peruntukan",
-          "kategori",
+          "0",
           "jenjangusia",
           "0",
           "deskripsi",
@@ -126,7 +128,9 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
           "0",
           "0",
           "0",
-          "0"));
+          "0",
+          "0",
+          "default.png"));
     });
     getlayanansalondetail();
     getperuntukanjenjang();
@@ -277,10 +281,11 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
       for (int i = 0; i < data.length; i++) {
         ClassLayanansalon databaru = new ClassLayanansalon(
             data[i]['id'].toString(),
+            data[i]['idsalon'].toString(),
             data[i]['username'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['peruntukan'].toString(),
-            data[i]['kategori'].toString(),
+            data[i]['idkategori'].toString(),
             data[i]['jenjangusia'].toString(),
             data[i]['durasi'].toString(),
             data[i]['deskripsi'].toString(),
@@ -288,7 +293,10 @@ class DetailServiceSalon_salonState extends State<DetailServiceSalon_salon> {
             data[i]['hargapriadewasa'].toString(),
             data[i]['hargawanitadewasa'].toString(),
             data[i]['hargapriaanak'].toString(),
-            data[i]['hargawanitaanak'].toString());
+            data[i]['hargawanitaanak'].toString(),
+            data[i]['jumlah_kursi'].toString(),
+            data[i]['keterlambatan_waktu'].toString(),
+            data[i]['foto'].toString());
         arrtemp.add(databaru);
       }
       setState(() => this.arr = arrtemp);

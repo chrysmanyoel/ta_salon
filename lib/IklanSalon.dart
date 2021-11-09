@@ -164,7 +164,7 @@ class IklanSalonState extends State<IklanSalon> {
   Future<ClassIklan> getiklan() async {
     List<ClassIklan> arrtemp = new List();
     Map paramData = {
-      'username': main_variable.userlogin,
+      'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
 
@@ -256,7 +256,7 @@ class IklanSalonState extends State<IklanSalon> {
       'foto': myFoto.text,
       'mfile': fileName,
       'mimage': base64Image,
-      'username': main_variable.userlogin,
+      'idsalon': main_variable.idsalonlogin,
       'hargaiklan': hargaiklan,
       'tanggal_awal': myTanggal.text,
       'tanggal_akhir': JumlahHari.text,

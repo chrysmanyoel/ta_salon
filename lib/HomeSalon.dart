@@ -13,6 +13,7 @@ import 'package:ta_salon/TambahLayananSalon.dart';
 import 'package:ta_salon/WithdrawSalon.dart';
 import 'main_variable.dart' as main_variable;
 import 'dart:async';
+import 'dart:io';
 import 'package:ta_salon/dashboardadmin.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -30,8 +31,8 @@ class Homesalon extends StatefulWidget {
 
 class HomesalonState extends State<Homesalon> {
   ClassKategori selectedKategori;
-  ClassLayanansalon datalama =
-      new ClassLayanansalon("", "", "", "", "", "", "", "", "", "", "", "", "");
+  ClassLayanansalon datalama = new ClassLayanansalon(
+      "", "", "", "", '', "", "", "", "", "", "", "", "", "", '', '', '');
 
   NumberFormat numberFormat = NumberFormat(',000');
 
@@ -59,6 +60,7 @@ class HomesalonState extends State<Homesalon> {
   String status = "";
   String kategori;
   String foto = main_variable.ipnumber + "/gambar/default.png";
+  File _image;
 
   bool aktifpriadewasa = true;
   bool aktifwanitadewasa = true;
@@ -68,8 +70,24 @@ class HomesalonState extends State<Homesalon> {
 
   void initState() {
     super.initState();
-    arr.add(new ClassLayanansalon("id", "username", "namalayanan", "peruntukan",
-        "kategori", "0", "0", "deskripsi", "status", "0", "0", "0", "0"));
+    arr.add(new ClassLayanansalon(
+        "id",
+        "0",
+        "username",
+        "namalayanan",
+        "peruntukan",
+        "0",
+        "jenjangusia",
+        "0",
+        "deskripsi",
+        "status",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "default.png"));
     arrsalon.add(new ClassSalon("id", "username", "namasalon", "alamat", "kota",
         "telp", "0", "0", "keterangan", "status"));
     arrsaldo.add(new ClassUser(
@@ -86,8 +104,9 @@ class HomesalonState extends State<Homesalon> {
         "jeniskelamin",
         "role",
         "status"));
-    main_variable.usernamesalon = main_variable.userlogin;
-    dataLoadFunction();
+    print('ini nama salon : ' + main_variable.userlogin);
+    //dataLoadFunction();
+    getidsalon();
   }
 
   dataLoadFunction() async {
@@ -95,8 +114,7 @@ class HomesalonState extends State<Homesalon> {
       _isLoading = true; // your loader has started to load
     });
     // fetch you data over here
-    getsaldouser();
-    getlayanansalon();
+
     getidsalon();
     setState(() {
       _isLoading = false; // your loder will stop to finish after the data fetch
@@ -135,7 +153,11 @@ class HomesalonState extends State<Homesalon> {
       }
       setState(() => this.arrsalon = arrtemp);
       setState(() => main_variable.idsalonlogin = arrsalon[0].id.toString());
-      // print("ini status1 : " + arrsalon[0].status);
+
+      getsaldouser();
+      print('getsaldouser : ' + arrsaldo.length.toString());
+      getlayanansalon();
+      print('getlayanansalon : ' + arr.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -156,8 +178,6 @@ class HomesalonState extends State<Homesalon> {
         .then((res) {
       var data = json.decode(res.body);
       data = data[0]['status'];
-      print(res.body);
-      print(data.length);
 
       for (int i = 0; i < data.length; i++) {
         ClassUser databaru = new ClassUser(
@@ -176,6 +196,10 @@ class HomesalonState extends State<Homesalon> {
           data[i]['status'].toString(),
         );
         arrtemp.add(databaru);
+        // if (arrtemp[i].saldo == "0") {
+        //   print('masuk');
+        //   arrtemp[i].saldo = "0";
+        // }
       }
       setState(() => this.arrsaldo = arrtemp);
 
@@ -187,7 +211,7 @@ class HomesalonState extends State<Homesalon> {
 
   Future<ClassSalon> statussalon() async {
     Map paramData = {
-      'username': main_variable.userlogin,
+      'username': main_variable.idsalonlogin,
       'status': status,
     };
     var parameter = json.encode(paramData);
@@ -198,7 +222,6 @@ class HomesalonState extends State<Homesalon> {
         .then((res) {
       var data = json.decode(res.body);
       data = data[0]['status'];
-      print("ini resbody : " + res.body);
 
       for (int i = 0; i < data.length; i++) {
         // ClassSalon databaru = new ClassSalon(
@@ -218,7 +241,6 @@ class HomesalonState extends State<Homesalon> {
           arrsalon[0].setstatus(data[i]['status'].toString());
         });
       }
-      print(arrsalon.length.toString() + "ini length arr");
 
       return arrsalon;
     }).catchError((err) {
@@ -229,7 +251,7 @@ class HomesalonState extends State<Homesalon> {
   Future<ClassLayanansalon> getlayanansalon() async {
     List<ClassLayanansalon> arrtemp = new List();
     Map paramData = {
-      'username': main_variable.userlogin,
+      'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
 
@@ -243,10 +265,11 @@ class HomesalonState extends State<Homesalon> {
       for (int i = 0; i < data.length; i++) {
         ClassLayanansalon databaru = new ClassLayanansalon(
             data[i]['id'].toString(),
+            data[i]['idsalon'].toString(),
             data[i]['username'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['peruntukan'].toString(),
-            data[i]['kategori'].toString(),
+            data[i]['idkategori'].toString(),
             data[i]['jenjangusia'].toString(),
             data[i]['durasi'].toString(),
             data[i]['deskripsi'].toString(),
@@ -254,9 +277,14 @@ class HomesalonState extends State<Homesalon> {
             data[i]['hargapriadewasa'].toString(),
             data[i]['hargawanitadewasa'].toString(),
             data[i]['hargapriaanak'].toString(),
-            data[i]['hargawanitaanak'].toString());
+            data[i]['hargawanitaanak'].toString(),
+            data[i]['jumlah_kursi'].toString(),
+            data[i]['keterlambatan_waktu'].toString(),
+            data[i]['foto'].toString());
         arrtemp.add(databaru);
+        foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
       }
+
       setState(() => this.arr = arrtemp);
 
       return arrtemp;
@@ -934,6 +962,13 @@ class HomesalonState extends State<Homesalon> {
                                                       GestureDetector(
                                                         onTap: () {
                                                           print("masuk5");
+                                                          // Navigator.push(
+                                                          //     context,
+                                                          //     MaterialPageRoute(
+                                                          //       builder:
+                                                          //           (context) =>
+                                                          //               TambahLayanan(),
+                                                          //     ));
                                                         },
                                                         child: Column(
                                                           children: <Widget>[
@@ -1090,310 +1125,370 @@ class HomesalonState extends State<Homesalon> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.only(top: 10.0, bottom: 15.0),
-                    itemCount: arr.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Stack(
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.fromLTRB(40.0, 5.0, 20.0, 5.0),
-                            height: 150.0,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white70,
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: Padding(
-                              padding:
-                                  EdgeInsets.fromLTRB(100.0, 15.0, 20.0, 20.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.fromLTRB(
-                                            0.0, 0.0, 0.0, 0.0),
-                                        width: 120.0,
-                                        child: Text(
-                                          "Nama Layanan : ",
+                      padding: EdgeInsets.only(top: 10.0, bottom: 15.0),
+                      itemCount: arr.length == 0 ? 1 : arr.length,
+                      itemBuilder: (BuildContext context, int index) => arr
+                                  .length ==
+                              0
+                          ? Container(
+                              //color: Colors.red,
+                              child: Card(
+                                elevation: 10,
+                                shadowColor: Colors.black,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 60),
+                                      height: 150,
+                                      width: 250,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          image: DecorationImage(
+                                              image: AssetImage(
+                                                  "images/kosong.jpg"),
+                                              fit: BoxFit.cover)),
+                                      child: Container(),
+                                    ),
+                                    Container(
+                                      margin:
+                                          EdgeInsets.fromLTRB(0, 10, 0, 100),
+                                      child: Text("Tidak Mempunyai Layanan",
+                                          textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(
-                                            arr[index].namalayanan,
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.fromLTRB(
-                                            0.0, 0.0, 0.0, 0.0),
-                                        width: 120.0,
-                                        child: Text(
-                                          "Kategori             : ",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(
-                                            arr[index].kategori,
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.fromLTRB(
-                                            0.0, 0.0, 0.0, 0.0),
-                                        width: 120.0,
-                                        child: Text(
-                                          "Jenjang              : ",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(
-                                            arr[index].jenjangusia,
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.fromLTRB(
-                                            0.0, 0.0, 0.0, 0.0),
-                                        width: 120.0,
-                                        child: Text(
-                                          "Deskripsi           : ",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: <Widget>[
-                                          Text(
-                                            //arr[index].deskripsi,
-                                            arr[index].deskripsi.length > 10
-                                                ? arr[index]
-                                                        .deskripsi
-                                                        .substring(0, 10) +
-                                                    '...'
-                                                : arr[index].deskripsi,
-                                            //" Ini adalah des... ",
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 10.0),
-                                  Row(
-                                    children: <Widget>[
-                                      RaisedButton(
-                                        onPressed: () {
-                                          print('ini button booking ' +
-                                              index.toString());
-                                          print("nama layanan : " +
-                                              arr[index].namalayanan);
-                                          print("nama id : " + arr[index].id);
-                                          print("nama kategori : " +
-                                              arr[index].kategori);
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailServiceSalon_salon(
-                                                          namaservicekirim:
-                                                              arr[index]
-                                                                  .namalayanan,
-                                                          idservice:
-                                                              arr[index].id,
-                                                          kodelayanan:
-                                                              arr[index]
-                                                                  .kategori)));
-                                        },
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(80.0)),
-                                        padding: EdgeInsets.all(0.0),
-                                        child: Ink(
-                                          decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color(0xff374ABE),
-                                                  Color(0xff64B6FF)
-                                                ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0)),
-                                          child: Container(
-                                            constraints: BoxConstraints(
-                                                maxWidth: 100.0,
-                                                minHeight: 35.0),
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Booking",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                letterSpacing: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 10.0),
-                                      RaisedButton(
-                                        onPressed: () {
-                                          print('ini button edit ' +
-                                              index.toString());
-                                          print("nama layanan : " +
-                                              arr[index].namalayanan);
-                                          print("nama id : " + arr[index].id);
-                                          print("nama kategori : " +
-                                              arr[index].kategori);
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditServiceSalon(
-                                                          namaservicekirim:
-                                                              arr[index]
-                                                                  .namalayanan,
-                                                          idservice:
-                                                              arr[index].id,
-                                                          kodelayanan:
-                                                              arr[index]
-                                                                  .kategori)));
-                                        },
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(80.0)),
-                                        padding: EdgeInsets.all(0.0),
-                                        child: Ink(
-                                          decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color(0xff374ABE),
-                                                  Color(0xff64B6FF)
-                                                ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0)),
-                                          child: Container(
-                                            constraints: BoxConstraints(
-                                                maxWidth: 100.0,
-                                                minHeight: 35.0),
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Edit",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                letterSpacing: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
+                                            fontSize: 20,
+                                          )),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 20.0,
-                            top: 15.0,
-                            bottom: 15.0,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20.0),
-                              child: Image(
-                                width: 110.0,
-                                image: AssetImage("images/background.png"),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                            )
+                          : Stack(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.fromLTRB(40.0, 5.0, 20.0, 5.0),
+                                  height: 150.0,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white70,
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        100.0, 15.0, 20.0, 20.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                              width: 120.0,
+                                              child: Text(
+                                                "Nama Layanan : ",
+                                                style: TextStyle(
+                                                  fontSize: 13.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  arr[index].namalayanan,
+                                                  style: TextStyle(
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                              width: 120.0,
+                                              child: Text(
+                                                "Kategori             : ",
+                                                style: TextStyle(
+                                                  fontSize: 13.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  arr[index].idkategori,
+                                                  style: TextStyle(
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                              width: 120.0,
+                                              child: Text(
+                                                "Jenjang              : ",
+                                                style: TextStyle(
+                                                  fontSize: 13.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  arr[index].jenjangusia,
+                                                  style: TextStyle(
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                              width: 120.0,
+                                              child: Text(
+                                                "Deskripsi           : ",
+                                                style: TextStyle(
+                                                  fontSize: 13.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Column(
+                                              children: <Widget>[
+                                                Text(
+                                                  //arr[index].deskripsi,
+                                                  arr[index].deskripsi.length >
+                                                          10
+                                                      ? arr[index]
+                                                              .deskripsi
+                                                              .substring(
+                                                                  0, 10) +
+                                                          '...'
+                                                      : arr[index].deskripsi,
+                                                  //" Ini adalah des... ",
+                                                  style: TextStyle(
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10.0),
+                                        Row(
+                                          children: <Widget>[
+                                            RaisedButton(
+                                              onPressed: () {
+                                                print('ini button booking ' +
+                                                    index.toString());
+                                                print("nama layanan : " +
+                                                    arr[index].namalayanan);
+                                                print("nama id : " +
+                                                    arr[index].id);
+                                                print("nama kategori : " +
+                                                    arr[index].idkategori);
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            DetailServiceSalon_salon(
+                                                                namaservicekirim:
+                                                                    arr[index]
+                                                                        .namalayanan,
+                                                                idservice:
+                                                                    arr[index]
+                                                                        .id,
+                                                                kodelayanan: arr[
+                                                                        index]
+                                                                    .idkategori)));
+                                              },
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          80.0)),
+                                              padding: EdgeInsets.all(0.0),
+                                              child: Ink(
+                                                decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xff374ABE),
+                                                        Color(0xff64B6FF)
+                                                      ],
+                                                      begin:
+                                                          Alignment.centerLeft,
+                                                      end:
+                                                          Alignment.centerRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0)),
+                                                child: Container(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth: 100.0,
+                                                      minHeight: 35.0),
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Booking",
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      letterSpacing: 1.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 10.0),
+                                            RaisedButton(
+                                              onPressed: () {
+                                                print('ini button edit ' +
+                                                    index.toString());
+                                                print("nama layanan : " +
+                                                    arr[index].namalayanan);
+                                                print("nama id : " +
+                                                    arr[index].id);
+                                                print("nama kategori : " +
+                                                    arr[index].idkategori);
+
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            EditServiceSalon(
+                                                                namaservicekirim:
+                                                                    arr[index]
+                                                                        .namalayanan,
+                                                                idservice:
+                                                                    arr[index]
+                                                                        .id,
+                                                                kodelayanan: arr[
+                                                                        index]
+                                                                    .idkategori)));
+                                              },
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          80.0)),
+                                              padding: EdgeInsets.all(0.0),
+                                              child: Ink(
+                                                decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xff374ABE),
+                                                        Color(0xff64B6FF)
+                                                      ],
+                                                      begin:
+                                                          Alignment.centerLeft,
+                                                      end:
+                                                          Alignment.centerRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0)),
+                                                child: Container(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth: 100.0,
+                                                      minHeight: 35.0),
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Edit",
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      letterSpacing: 1.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 20.0,
+                                  top: 15.0,
+                                  bottom: 15.0,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      child: Image.network(
+                                        main_variable.ipnumber +
+                                            "/gambar/" +
+                                            arr[index].foto,
+                                        width: 110.0,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
                 ),
               ],
             ),

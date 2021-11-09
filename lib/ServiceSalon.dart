@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_salon/ClassLayananWithUsers.dart';
+import 'package:ta_salon/ClassLayananSalon.dart';
 import 'package:ta_salon/DetailServiceSalon.dart';
 import 'main_variable.dart' as main_variable;
 import 'dart:async';
@@ -23,56 +23,85 @@ extension CapExtension on String {
 }
 
 class ServiceSalonState extends State<ServiceSalon> {
-  List<ClassLayananWithUsers> arr = new List();
+  List<ClassLayanansalon> arr = new List();
   String foto = main_variable.ipnumber + "/gambar/default.png";
-  ClassLayananWithUsers datalama = null;
 
   void initState() {
     super.initState();
-    getlayananwithuser();
-    print("ini usr salon dari main_var : " + main_variable.usernamesalon);
+
+    setState(() {
+      arr.add(new ClassLayanansalon(
+          "id",
+          "0",
+          "username",
+          "namalayanan",
+          "peruntukan",
+          "0",
+          "jenjangusia",
+          "0",
+          "deskripsi",
+          "status",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "default.png"));
+    });
+
+    print('3. ' +
+        main_variable.usernamesalon +
+        " - " +
+        main_variable.idsalonlogin);
+    getlayanansalon();
+    print('nanas');
   }
 
-  Future<ClassLayananWithUsers> getlayananwithuser() async {
+  Future<ClassLayanansalon> getlayanansalon() async {
+    List<ClassLayanansalon> arrtemp = new List();
     Map paramData = {
-      'username': main_variable.usernamesalon,
+      'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
 
     http
-        .post(main_variable.ipnumber + "/getlayananwithuser",
+        .post(main_variable.ipnumber + "/getlayanansalon",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
+      print('semangka');
       var data = json.decode(res.body);
       data = data[0]['status'];
-      print(res.body);
-      print(data.length);
+      print('melon');
+      //print("ini service salon : " + data);
 
       for (int i = 0; i < data.length; i++) {
-        ClassLayananWithUsers databaru = new ClassLayananWithUsers(
+        ClassLayanansalon databaru = new ClassLayanansalon(
             data[i]['id'].toString(),
+            data[i]['idsalon'].toString(),
             data[i]['username'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['peruntukan'].toString(),
-            data[i]['kategori'].toString(),
+            data[i]['idkategori'].toString(),
             data[i]['jenjangusia'].toString(),
-            data[i]['hargapriadewasa'].toString(),
-            data[i]['hargawanitadewasa'].toString(),
-            data[i]['hargawanitaanak'].toString(),
-            data[i]['hargapriaanak'].toString(),
             data[i]['durasi'].toString(),
             data[i]['deskripsi'].toString(),
-            data[i]['foto'].toString(),
-            data[i]['alamat'].toString(),
-            data[i]['kota'].toString(),
-            data[i]['telp'].toString(),
-            data[i]['status'].toString());
-        this.arr.add(databaru);
-        foto = main_variable.ipnumber + "/gambar/" + arr[i].foto;
+            data[i]['status'].toString(),
+            data[i]['hargapriadewasa'].toString(),
+            data[i]['hargawanitadewasa'].toString(),
+            data[i]['hargapriaanak'].toString(),
+            data[i]['hargawanitaanak'].toString(),
+            data[i]['jumlah_kursi'].toString(),
+            data[i]['keterlambatan_waktu'].toString(),
+            data[i]['foto'].toString());
+        arrtemp.add(databaru);
+        foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
       }
-      setState(() => this.arr = arr);
 
-      return arr;
+      setState(() => this.arr = arrtemp);
+      print('panjang arr : ' + this.arr.length.toString());
+
+      return arrtemp;
     }).catchError((err) {
       print(err);
     });
@@ -167,7 +196,7 @@ class ServiceSalonState extends State<ServiceSalon> {
                                                         arr[index].namalayanan,
                                                     idservice: arr[index].id,
                                                     kodelayanan:
-                                                        arr[index].kategori),
+                                                        arr[index].idkategori),
                                           ));
                                     },
                                     shape: RoundedRectangleBorder(
@@ -218,11 +247,6 @@ class ServiceSalonState extends State<ServiceSalon> {
                       bottom: 15.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        // child: Image(
-                        //   width: 120.0,
-                        //   image: AssetImage("images/background.png"),
-                        //   fit: BoxFit.cover,
-                        // ),
                         child: Image.network(
                           main_variable.ipnumber + "/gambar/" + arr[index].foto,
                           width: 110.0,
@@ -232,6 +256,13 @@ class ServiceSalonState extends State<ServiceSalon> {
                     ),
                   ],
                 ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Divider(
+                color: Colors.teal.shade100,
+                thickness: 1.0,
               ),
             ],
           );

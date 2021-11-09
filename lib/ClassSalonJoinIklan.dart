@@ -1,7 +1,7 @@
 class ClassSalonJoinIklan {
   String idiklan,
       tanggal,
-      username,
+      idsalon,
       hargaiklan,
       tanggal_awal,
       tanggal_akhir,
@@ -9,12 +9,13 @@ class ClassSalonJoinIklan {
       status,
       namasalon,
       kota,
-      alamat;
+      alamat,
+      username;
 
   ClassSalonJoinIklan(
       this.idiklan,
       this.tanggal,
-      this.username,
+      this.idsalon,
       this.hargaiklan,
       this.tanggal_awal,
       this.tanggal_akhir,
@@ -22,5 +23,6 @@ class ClassSalonJoinIklan {
       this.status,
       this.namasalon,
       this.kota,
-      this.alamat);
+      this.alamat,
+      this.username);
 }

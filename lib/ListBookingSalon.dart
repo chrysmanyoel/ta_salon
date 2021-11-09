@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ta_salon/warnalayer.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:ta_salon/ClassUser.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -32,12 +33,22 @@ class ListBookingSalonState extends State<ListBookingSalon> {
   TextEditingController myTgl_temp = new TextEditingController();
   TextEditingController myTgl = new TextEditingController();
   TextEditingController myTime = new TextEditingController();
+  TextEditingController myKodePesanan = new TextEditingController();
   TextEditingController myTime_temp = new TextEditingController();
+  TextEditingController myKeterangan = new TextEditingController();
   NumberFormat numberFormat = NumberFormat(',000');
 
-  String myidupdate, idservice = "", mystatus = "", statusreschedule = "";
+  DateTime tempketerlambatan, tempcobacetak;
+  List<Jiffy> hasilketerlambatan = new List();
+  var tempmenit;
+
+  String myidupdate,
+      idservice = "",
+      mystatus = "",
+      statusreschedule = "",
+      hari = "default",
+      usernamecancel = "";
   String foto = main_variable.ipnumber + "/gambar/default.png";
-  String hari = "default", usernamecancel = "";
 
   List<ClassListBookingWithLayanan> arr = new List();
   List<ClassListBookingWithLayanan> arrsemua = new List();
@@ -118,7 +129,10 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           "jamres",
           "tglres",
           "statusreschedule",
-          "jamresselesai"));
+          "jamresselesai",
+          "kdoe_pesanan",
+          "keterangan",
+          "keterangan"));
       arrsemua.add(new ClassListBookingWithLayanan(
           'id',
           'tanggal',
@@ -140,7 +154,10 @@ class ListBookingSalonState extends State<ListBookingSalon> {
           "jamres",
           "tglres",
           "statusreschedule",
-          "jamresselesai"));
+          "jamresselesai",
+          "kdoe_pesanan",
+          "keterangan",
+          "keterangan"));
       arrcount.add(new ClassBookingService(
           "id",
           "tanggal",
@@ -187,12 +204,54 @@ class ListBookingSalonState extends State<ListBookingSalon> {
         .then((res) {
       print("object" + res.body);
       var data = json.decode(res.body);
-      var data1 = data[0]['bookinguser'];
+      var data1 = data[0]['status'];
 
       getlistbookingsalon();
       getlistbookingsalonsemua();
 
-      return "";
+      return data1;
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  Future<String> konfirm_kodepesanan() async {
+    Map paramData = {
+      'kodepesanan': myKodePesanan.text,
+      'id': myidupdate,
+    };
+    var parameter = json.encode(paramData);
+    http
+        .post(main_variable.ipnumber + "/konfirm_kodepesanan",
+            headers: {"Content-Type": "application/json"}, body: parameter)
+        .then((res) {
+      print("object" + res.body);
+      var data = json.decode(res.body);
+      data = data[0]['status'];
+      print("object" + data);
+
+      if (data == "sukses") {
+        Fluttertoast.showToast(
+            msg: "Kode Diterima, Status Pesanan Telah Terganti",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.green[600],
+            textColor: Colors.black,
+            fontSize: 16.0);
+        updatestatusbooking();
+        getlistbookingsalon();
+        getlistbookingsalonsemua();
+      } else {
+        Fluttertoast.showToast(
+            msg: "Kode Salah",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.black,
+            fontSize: 16.0);
+      }
+
+      return data;
     }).catchError((err) {
       print(err);
     });
@@ -214,12 +273,29 @@ class ListBookingSalonState extends State<ListBookingSalon> {
         .then((res) {
       print("object" + res.body);
       var data = json.decode(res.body);
-      var data1 = data[0]['bookinguser'];
+      var data1 = data[0]['status'];
 
+      if (data1 == "sukses") {
+        Fluttertoast.showToast(
+            msg: "Reschedule Telah Terkirim",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.green[600],
+            textColor: Colors.black,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Gagal, Jadwal Sudah Terisi",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.black,
+            fontSize: 16.0);
+      }
       getlistbookingsalon();
       getlistbookingsalonsemua();
 
-      return "";
+      return data1;
     }).catchError((err) {
       print(err);
     });
@@ -254,7 +330,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
   Future<ClassListBookingWithLayanan> getlistbookingsalon() async {
     List<ClassListBookingWithLayanan> arrtemp = new List();
     Map paramData = {
-      'usernamesalon': main_variable.userlogin,
+      'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
     http
@@ -271,24 +347,36 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['tanggal'].toString(),
             data[i]['username'].toString(),
             data[i]['namauser'].toString(),
-            data[i]['usenamesalon'].toString(),
+            data[i]['namasalon'].toString(),
             data[i]['idservice'].toString(),
             data[i]['tanggalbooking'].toString(),
             data[i]['jambooking'].toString(),
-            data[i]['requestpegawai'].toString(),
+            data[i]['namapegawai'].toString(),
             data[i]['total'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['status'].toString(),
             data[i]['pembayaran'].toString(),
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
-            data1[i].toString(),
+            data[i]['total_cancel'].toString(),
             data[i]['kota'].toString(),
             data[i]['jamres'].toString(),
             data[i]['tglres'].toString(),
             data[i]['statusreschedule'].toString(),
-            data[i]['jamresselesai'].toString());
+            data[i]['jamresselesai'].toString(),
+            data[i]['kode_pesanan'].toString(),
+            data[i]['keterangan'].toString(),
+            data[i]['toleransi_keterlambatan'].toString());
         arrtemp.add(databaru);
+
+        hasilketerlambatan.add(Jiffy(arrtemp[i].jambooking, "hh:mm:ss")
+            .add(minutes: int.parse(arrtemp[i].toleransi_keterlambatan)));
+
+        print('ini temp : ' + hasilketerlambatan[i].Hms);
+
+        if (arrtemp[i].total_cancel == "null") {
+          arrtemp[i].total_cancel = "0";
+        }
 
         dateTime = DateTime.parse(arrtemp[i].tanggalbooking);
         hri = DateFormat('EEEE').format(dateTime);
@@ -317,9 +405,6 @@ class ListBookingSalonState extends State<ListBookingSalon> {
         }
       }
       setState(() => this.arr = arrtemp);
-      //print("ini panjang arr" + this.arr.length.toString());
-      print("panjang5" + arr.length.toString());
-      print("panjang6" + arrsemua.length.toString());
 
       return arrtemp;
     }).catchError((err) {
@@ -330,15 +415,13 @@ class ListBookingSalonState extends State<ListBookingSalon> {
   Future<String> getlistbookingsalonsemua() async {
     List<ClassListBookingWithLayanan> arrtemp1 = new List();
     Map paramData = {
-      'usernamesalon': main_variable.userlogin,
+      'idsalon': main_variable.idsalonlogin,
     };
     var parameter = json.encode(paramData);
     http
         .post(main_variable.ipnumber + "/getlistbookingwithlayanansemua",
             headers: {"Content-Type": "application/json"}, body: parameter)
         .then((res) {
-      //print(res.body.substring(100));
-      print("ini jumlah : " + res.body.toString());
       var data = json.decode(res.body);
       var data1 = data[0]['jumlah'];
       data = data[0]['status'];
@@ -349,33 +432,34 @@ class ListBookingSalonState extends State<ListBookingSalon> {
             data[i]['tanggal'].toString(),
             data[i]['username'].toString(),
             data[i]['namauser'].toString(),
-            data[i]['usenamesalon'].toString(),
+            data[i]['namasalon'].toString(),
             data[i]['idservice'].toString(),
             data[i]['tanggalbooking'].toString(),
             data[i]['jambooking'].toString(),
-            data[i]['requestpegawai'].toString(),
+            data[i]['namapegawai'].toString(),
             data[i]['total'].toString(),
             data[i]['namalayanan'].toString(),
             data[i]['status'].toString(),
             data[i]['pembayaran'].toString(),
             data[i]['foto'].toString(),
             data[i]['jambookingselesai'].toString(),
-            data1[i].toString(),
+            data[i]['total_cancel'].toString(),
             data[i]['kota'].toString(),
             data[i]['jamres'].toString(),
             data[i]['tglres'].toString(),
             data[i]['statusreschedule'].toString(),
-            data[i]['jamresselesai'].toString());
+            data[i]['jamresselesai'].toString(),
+            data[i]['kode_pesanan'].toString(),
+            data[i]['keterangan'].toString(),
+            data[i]['toleransi_keterlambatan'].toString());
+
         arrtemp1.add(databaru);
-        // myNamauser.text = arrsemua[i].namauser;
+        if (arrtemp1[i].total_cancel == "null") {
+          arrtemp1[i].total_cancel = "0";
+        }
         dateTime = DateTime.parse(arrtemp1[i].tanggalbooking);
-        print("ini jumlah " +
-            i.toString() +
-            ": " +
-            arrtemp1[i].total_cancel.toString());
 
         hri = DateFormat('EEEE').format(dateTime);
-        //print("hari : " + i.toString() + "-" + hri.toString());
 
         if (hri.toString() == "Monday") {
           hari = 'Senin, ';
@@ -401,8 +485,6 @@ class ListBookingSalonState extends State<ListBookingSalon> {
         }
       }
       setState(() => this.arrsemua = arrtemp1);
-      print("panjang3" + arr.length.toString());
-      print("panjang4" + arrsemua.length.toString());
 
       return arrtemp1;
     }).catchError((err) {
@@ -418,9 +500,9 @@ class ListBookingSalonState extends State<ListBookingSalon> {
       'status': myStatus.text,
       'usernamecancel': usernamecancel,
       'usernamesalon': main_variable.userlogin,
+      'keterangan': myKeterangan.text,
     };
     var parameter = json.encode(paramData);
-    //print(usernamecancel + "aaa");
     http
         .post(main_variable.ipnumber + "/updatestatusbooking",
             headers: {"Content-Type": "application/json"}, body: parameter)
@@ -429,8 +511,6 @@ class ListBookingSalonState extends State<ListBookingSalon> {
       var data = json.decode(res.body);
       var data1 = data[0]['bookingharini'];
       data = data[0]['bookingsemua'];
-      print("panjang1" + arr.length.toString());
-      print("panjang2" + arrsemua.length.toString());
 
       getlistbookingsalon();
       getlistbookingsalonsemua();
@@ -1123,6 +1203,192 @@ class ListBookingSalonState extends State<ListBookingSalon> {
     );
   }
 
+  cek_kode_pesanan_popup(context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              height: 250,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                    child: Text(
+                      'Input Kode Pesanan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..color = Colors.black
+                          ..strokeWidth = 2.0,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                  ),
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.fromLTRB(10, 5, 0, 0),
+                          child: Text(
+                            "*Masukan 5 Digit Kode Dari Customer Untuk Konfirmasi Kedatangan Customer",
+                            style: TextStyle(
+                                fontSize: 12,
+                                letterSpacing: 0.5,
+                                color: Colors.red),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 60,
+                            child: buildTextField(
+                                MaterialCommunityIcons.numeric,
+                                "5 Digit Kode",
+                                false,
+                                false,
+                                true,
+                                myKodePesanan),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(20, 0, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("submit");
+                                  //manggil future untuk cek kode
+                                  konfirm_kodepesanan();
+                                  print("id nya : " +
+                                      myidupdate +
+                                      " - kodenya : " +
+                                      myKodePesanan.text +
+                                      " - statusnya: " +
+                                      myStatus.text);
+                                  myKodePesanan.text = "";
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 150.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Submit",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(5, 0, 10, 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              height: 35,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  print("cancel");
+                                  myKodePesanan.text = "";
+                                  Navigator.pop(context);
+                                },
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(80.0)),
+                                padding: EdgeInsets.all(0.0),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff374ABE),
+                                          Color(0xff64B6FF)
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(30.0)),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 320.0, minHeight: 50.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Cancel",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width * 0.6;
@@ -1188,6 +1454,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                   .length ==
                               0
                           ? Container(
+                              //color: Colors.red,
                               child: Card(
                                 elevation: 10,
                                 shadowColor: Colors.black,
@@ -1370,7 +1637,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                         maxLines: 1,
                                                         text: TextSpan(
                                                           text: arr[index]
-                                                              .requestpegawai
+                                                              .namapegawai
                                                               .capitalizeFirstofEach1,
                                                           style: TextStyle(
                                                               fontSize: 15,
@@ -1666,22 +1933,12 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       )),
                                                 ),
                                                 onPressed: () {
-                                                  print("terima");
+                                                  print("datang");
+                                                  cek_kode_pesanan_popup(
+                                                      this.context);
                                                   myidupdate = arr[index].id;
                                                   usernamecancel = "-";
-                                                  myStatus.text = "terima";
-                                                  updatestatusbooking();
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Booking Telah Diterima",
-                                                      toastLength:
-                                                          Toast.LENGTH_LONG,
-                                                      gravity:
-                                                          ToastGravity.CENTER,
-                                                      backgroundColor:
-                                                          Colors.blue[300],
-                                                      textColor: Colors.black,
-                                                      fontSize: 16.0);
+                                                  myStatus.text = "datang";
                                                 },
                                                 trailingIcon: Icon(
                                                   Icons.follow_the_signs_sharp,
@@ -1736,12 +1993,13 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                 ),
                                                 onPressed: () {
                                                   print("tidak datang");
-                                                  myidupdate = arr[index].id;
-                                                  myStatus.text =
-                                                      "tidak datang";
-                                                  usernamecancel =
-                                                      arr[index].username;
-                                                  updatestatusbooking();
+                                                  // myidupdate = arr[index].id;
+                                                  // myStatus.text =
+                                                  //     "tidak datang";
+                                                  // usernamecancel =
+                                                  //     arr[index].username;
+                                                  // updatestatusbooking();
+
                                                   Fluttertoast.showToast(
                                                       msg:
                                                           "Booking Telah Dihapus, Customer Tidak Datang",
@@ -1811,7 +2069,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                   myidupdate = arr[index].id;
                                                   myStatus.text = "cancel";
                                                   usernamecancel =
-                                                      arr[index].requestpegawai;
+                                                      arr[index].namapegawai;
                                                   updatestatusbooking();
                                                   Fluttertoast.showToast(
                                                       msg:
@@ -1886,7 +2144,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                             maxLines: 1,
                                                             text: TextSpan(
                                                               text: arr[index]
-                                                                  .requestpegawai
+                                                                  .namapegawai
                                                                   .capitalizeFirstofEach1,
                                                               style: TextStyle(
                                                                   fontSize: 15,
@@ -1915,6 +2173,23 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                         .bold,
                                                                 color: Colors
                                                                     .black),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        margin:
+                                                            EdgeInsets.fromLTRB(
+                                                                10, 0, 0, 0),
+                                                        child: RichText(
+                                                          text: TextSpan(
+                                                            text: "*Batas Keterlambatan " +
+                                                                arr[index]
+                                                                    .toleransi_keterlambatan +
+                                                                ' menit',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    Colors.red),
                                                           ),
                                                         ),
                                                       ),
@@ -2196,6 +2471,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                           arr[index].tglres;
                                                       myidupdate =
                                                           arr[index].id;
+
                                                       print(arr[index].jamres);
                                                       print(arr[index].tglres);
                                                       acc_lihat_reschedule(
@@ -2229,7 +2505,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       myStatus.text = "cancel";
                                                       usernamecancel =
                                                           arr[index]
-                                                              .requestpegawai;
+                                                              .namapegawai;
                                                       updatestatusbooking();
                                                       Fluttertoast.showToast(
                                                           msg:
@@ -2313,7 +2589,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                 text: TextSpan(
                                                                   text: arr[
                                                                           index]
-                                                                      .requestpegawai
+                                                                      .namapegawai
                                                                       .capitalizeFirstofEach1,
                                                                   style: TextStyle(
                                                                       fontSize:
@@ -2702,9 +2978,9 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                               arr[index].id;
                                                           myStatus.text =
                                                               "cancel";
-                                                          usernamecancel = arr[
-                                                                  index]
-                                                              .requestpegawai;
+                                                          usernamecancel =
+                                                              arr[index]
+                                                                  .namapegawai;
                                                           updatestatusbooking();
                                                           Fluttertoast.showToast(
                                                               msg:
@@ -2797,7 +3073,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                         TextSpan(
                                                                       text: arr[
                                                                               index]
-                                                                          .requestpegawai
+                                                                          .namapegawai
                                                                           .capitalizeFirstofEach1,
                                                                       style: TextStyle(
                                                                           fontSize:
@@ -3221,9 +3497,9 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                   arr[index].id;
                                                               myStatus.text =
                                                                   "cancel";
-                                                              usernamecancel = arr[
-                                                                      index]
-                                                                  .requestpegawai;
+                                                              usernamecancel =
+                                                                  arr[index]
+                                                                      .namapegawai;
                                                               updatestatusbooking();
                                                               Fluttertoast.showToast(
                                                                   msg:
@@ -3316,7 +3592,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                         text:
                                                                             TextSpan(
                                                                           text: arr[index]
-                                                                              .requestpegawai
+                                                                              .namapegawai
                                                                               .capitalizeFirstofEach1,
                                                                           style: TextStyle(
                                                                               fontSize: 15,
@@ -3761,7 +4037,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                                 1,
                                                                             text:
                                                                                 TextSpan(
-                                                                              text: arr[index].requestpegawai.capitalizeFirstofEach1,
+                                                                              text: arr[index].namapegawai.capitalizeFirstofEach1,
                                                                               style: TextStyle(fontSize: 15, color: Colors.black),
                                                                             ),
                                                                           ),
@@ -4182,7 +4458,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                         maxLines: 1,
                                                         text: TextSpan(
                                                           text: arrsemua[index]
-                                                              .requestpegawai
+                                                              .namapegawai
                                                               .capitalizeFirstofEach1,
                                                           style: TextStyle(
                                                               fontSize: 15,
@@ -4480,19 +4756,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       arrsemua[index].id;
                                                   usernamecancel = "-";
                                                   myStatus.text = "datang";
-                                                  updatestatusbooking();
-                                                  //Masukan kode
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Booking Telah Diterima",
-                                                      toastLength:
-                                                          Toast.LENGTH_LONG,
-                                                      gravity:
-                                                          ToastGravity.CENTER,
-                                                      backgroundColor:
-                                                          Colors.blue[300],
-                                                      textColor: Colors.black,
-                                                      fontSize: 16.0);
+                                                  cek_kode_pesanan_popup(
+                                                      context);
                                                 },
                                                 trailingIcon: Icon(
                                                   Icons.follow_the_signs_sharp,
@@ -4631,7 +4896,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                   myStatus.text = "cancel";
                                                   usernamecancel =
                                                       arrsemua[index]
-                                                          .requestpegawai;
+                                                          .namapegawai;
                                                   updatestatusbooking();
                                                   Fluttertoast.showToast(
                                                       msg:
@@ -4708,7 +4973,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                             text: TextSpan(
                                                               text: arrsemua[
                                                                       index]
-                                                                  .requestpegawai
+                                                                  .namapegawai
                                                                   .capitalizeFirstofEach1,
                                                               style: TextStyle(
                                                                   fontSize: 15,
@@ -5059,7 +5324,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                       myStatus.text = "cancel";
                                                       usernamecancel =
                                                           arrsemua[index]
-                                                              .requestpegawai;
+                                                              .namapegawai;
                                                       updatestatusbooking();
                                                       Fluttertoast.showToast(
                                                           msg:
@@ -5143,7 +5408,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                 text: TextSpan(
                                                                   text: arrsemua[
                                                                           index]
-                                                                      .requestpegawai
+                                                                      .namapegawai
                                                                       .capitalizeFirstofEach1,
                                                                   style: TextStyle(
                                                                       fontSize:
@@ -5541,7 +5806,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                               "cancel";
                                                           usernamecancel =
                                                               arrsemua[index]
-                                                                  .requestpegawai;
+                                                                  .namapegawai;
                                                           updatestatusbooking();
                                                           Fluttertoast.showToast(
                                                               msg:
@@ -5634,7 +5899,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                         TextSpan(
                                                                       text: arrsemua[
                                                                               index]
-                                                                          .requestpegawai
+                                                                          .namapegawai
                                                                           .capitalizeFirstofEach1,
                                                                       style: TextStyle(
                                                                           fontSize:
@@ -6021,6 +6286,8 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                       .id;
                                                               usernamecancel =
                                                                   "-";
+                                                              myKeterangan
+                                                                  .text = "-";
                                                               //updatestatusbooking();
                                                               print(idservice +
                                                                   "  bbbbb");
@@ -6068,7 +6335,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                               usernamecancel =
                                                                   arrsemua[
                                                                           index]
-                                                                      .requestpegawai;
+                                                                      .namapegawai;
                                                               updatestatusbooking();
                                                               Fluttertoast.showToast(
                                                                   msg:
@@ -6161,7 +6428,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                         text:
                                                                             TextSpan(
                                                                           text: arrsemua[index]
-                                                                              .requestpegawai
+                                                                              .namapegawai
                                                                               .capitalizeFirstofEach1,
                                                                           style: TextStyle(
                                                                               fontSize: 15,
@@ -6607,7 +6874,7 @@ class ListBookingSalonState extends State<ListBookingSalon> {
                                                                                 1,
                                                                             text:
                                                                                 TextSpan(
-                                                                              text: arrsemua[index].requestpegawai.capitalizeFirstofEach1,
+                                                                              text: arrsemua[index].namapegawai.capitalizeFirstofEach1,
                                                                               style: TextStyle(fontSize: 15, color: Colors.black),
                                                                             ),
                                                                           ),

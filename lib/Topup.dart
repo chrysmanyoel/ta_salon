@@ -11,7 +11,9 @@ import 'ClassBank.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'ShowHtlmPage.dart';
 import 'ClassUser.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class Topup extends StatefulWidget {
   @override
@@ -117,6 +119,62 @@ class TopupState extends State<Topup> {
     }).catchError((err) {
       print(err);
     });
+  }
+
+  Future openXendit(double amount, context) async {
+    print("masuk open xendit");
+
+    ///arnold punya
+    // var uname =
+    //     'xnd_development_tU93YGYMu0kc4YrPAipFA0OcAsR2TIvWhprXbRQWduq7Sj6QsvEJq28IMnYCO9x';
+    ///punyaku
+    var uname =
+        'xnd_development_q57y6XqXTu8R4fXUIuUDp6vOYg6t8Ox1ASMpnreEU8sTHOCphsJ26AsDfu2u';
+    var pword = '';
+    var authn = 'Basic ' + base64Encode(utf8.encode('$uname:'));
+    print(uname);
+    print("-----------------------------------------------------------------");
+    print(authn);
+    var data = {
+      'external_id': "testing",
+      'payer_email': "testing@gmail.com",
+      'description': 'Top Up Rp. ' + amount.toString(), // _moneyFormat(amount),
+      'amount': amount.toString(),
+    };
+    var res = await http.post(
+        Uri.encodeFull("https://api.xendit.co/v2/invoices"),
+        headers: {'Authorization': authn},
+        body: data);
+    if (res.statusCode != 200)
+      throw Exception('post error: statusCode= ${res.statusCode}');
+    var resData = jsonDecode(res.body);
+    print(resData);
+    print("invoice url = " + resData["invoice_url"]);
+    /*
+    databaseReference.child("TopUp/${_userProfile.key}/${resData["id"]}").update({
+      'amount': amount,
+      'status': "PENDING",
+      'url': resData["invoice_url"],
+      'timestamp': DateTime.now().millisecondsSinceEpoch
+    });
+    */
+    //launchWebViewExample(resData["invoice_url"].toString());
+    //updatesaldo();
+    String url = resData["invoice_url"].toString();
+    /*
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+    */
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ShowHtmlPage(url: url),
+      ),
+    );
   }
 
   @override
@@ -342,7 +400,7 @@ class TopupState extends State<Topup> {
                                           TextButton(
                                             onPressed: () {
                                               print("masuk 100k");
-                                              Jumlah.text = "100.000";
+                                              Jumlah.text = "100000";
                                             },
                                             style: TextButton.styleFrom(
                                                 side: BorderSide(
@@ -536,16 +594,19 @@ class TopupState extends State<Topup> {
                                 Container(
                                   margin: EdgeInsets.fromLTRB(20, 15, 20, 10),
                                   child: TextButton(
-                                    onPressed: () {
-                                      print("masuk button1");
-                                      Jenis_transaksi.text = "Top Up";
-                                      Melalui.text = "Xendit";
-                                      Nama_bank = "-";
-                                      Norek = "-";
-                                      Atasnama = "-";
-                                      Status.text = "pending";
-                                      jumlah = Jumlah.text;
-                                      transaksiTopUp_Withdraw();
+                                    onPressed: () async {
+                                      print("jumlah top up : " + Jumlah.text);
+                                      openXendit(
+                                          double.parse(Jumlah.text), context);
+                                      // print("masuk button1");
+                                      // Jenis_transaksi.text = "Top Up";
+                                      // Melalui.text = "Xendit";
+                                      // Nama_bank = "-";
+                                      // Norek = "-";
+                                      // Atasnama = "-";
+                                      // Status.text = "pending";
+                                      // jumlah = Jumlah.text;
+                                      // transaksiTopUp_Withdraw();
                                     },
                                     style: TextButton.styleFrom(
                                         side: BorderSide(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_salon/HomeSalon.dart';
 import 'package:ta_salon/ServiceSalon.dart';
+import 'ClassLayanansalon.dart';
 import 'ClassSalon.dart';
 import 'main_variable.dart' as main_variable;
 import 'dart:async';
@@ -17,13 +18,18 @@ import 'package:fluttertoast/fluttertoast.dart';
 class DetailSalon extends StatefulWidget {
   final String kotakrim;
   final String namasalonkirim;
+  final String idsalon;
 
-  DetailSalon({Key key, @required this.namasalonkirim, @required this.kotakrim})
+  DetailSalon(
+      {Key key,
+      @required this.namasalonkirim,
+      @required this.idsalon,
+      @required this.kotakrim})
       : super(key: key);
 
   @override
   DetailSalonState createState() =>
-      DetailSalonState(this.namasalonkirim, this.kotakrim);
+      DetailSalonState(this.namasalonkirim, this.idsalon, this.kotakrim);
 }
 
 class DetailSalonState extends State<DetailSalon> {
@@ -50,31 +56,52 @@ class DetailSalonState extends State<DetailSalon> {
   List<ClassGetJadwalSalon> arrhari = new List();
   List<ClassFavoritJoinSalonJoinUser> arrfav = new List();
 
-  String namasalonkirim, kotakrim;
+  String namasalonkirim, kotakrim, idsalon;
 
-  DetailSalonState(this.namasalonkirim, this.kotakrim);
+  DetailSalonState(this.namasalonkirim, this.idsalon, this.kotakrim);
 
   String foto = main_variable.ipnumber + "/gambar/default.png";
   File _image;
 
   List<ClassUser> arr = new List();
+  List<ClassLayanansalon> arr1 = new List();
 
   void initState() {
     super.initState();
     setState(() {
       arrsalon1.add(new ClassSalon("id", "username", "namasalon", "alamat",
           "kota", "telp", "0", "0", "keterangan", "status"));
+      // arr1.add(new ClassLayanansalon(
+      //     "id",
+      //     "0",
+      //     "username",
+      //     "namalayanan",
+      //     "peruntukan",
+      //     "0",
+      //     "jenjangusia",
+      //     "0",
+      //     "deskripsi",
+      //     "status",
+      //     "0",
+      //     "0",
+      //     "0",
+      //     "0",
+      //     "0",
+      //     "0",
+      //     "default.png"));
       arrhari
           .add(ClassGetJadwalSalon("id", "0", "hari", "jambuka", "jamtutup"));
       arrfav.add(new ClassFavoritJoinSalonJoinUser("idfavorit", "0", "username",
           "namasalon", "kota", "alamat", "usernamesalon", "default.png"));
+      //getidsalon();
+      getFavorit();
+      getjadwalsalon();
+      print('1. ' + namasalonkirim + ' - ' + idsalon + ' - ' + kotakrim);
+      print('2. ' +
+          main_variable.usernamesalon +
+          " - " +
+          main_variable.idsalonlogin);
     });
-
-    print("ini usr salon dari main_var : " + main_variable.usernamesalon);
-    getidsalon();
-    getFavorit();
-    getjadwalsalon();
-    //getuser();
   }
 
   Future getImageFromGallery() async {
@@ -100,8 +127,9 @@ class DetailSalonState extends State<DetailSalon> {
         .then((res) {
       var data = json.decode(res.body);
       data = data[0]['status'];
-      print(res.body);
-      print(data.length);
+      print('data fav : ' + res.body);
+      print('ini data jum fav : ' + data.length.toString());
+      // print("a " + data.length.toString());
 
       for (int i = 0; i < data.length; i++) {
         ClassFavoritJoinSalonJoinUser databaru =
@@ -126,16 +154,16 @@ class DetailSalonState extends State<DetailSalon> {
           ctr = j;
           idfavorit = arrfav[j].idfavorit;
 
-          print("idfav : " + ctr.toString());
+          // print("idfav : " + ctr.toString());
         } else {
-          print("object" + ctr.toString());
+          //print("object" + ctr.toString());
         }
       }
       if (ctr > -1) {
         _like = true;
-        print("object1" + ctr.toString());
+        //print("object1" + ctr.toString());
       } else {
-        print("object2" + ctr.toString());
+        //print("object2" + ctr.toString());
         _like = false;
       }
 
@@ -199,70 +227,101 @@ class DetailSalonState extends State<DetailSalon> {
     });
   }
 
-  Future<String> getidsalon() async {
-    Map paramData = {
-      'username': main_variable.usernamesalon,
-    };
-    var parameter = json.encode(paramData);
+  // Future<ClassSalon> getidsalon() async {
+  //   List<ClassSalon> arrtemp = new List();
+  //   Map paramData = {
+  //     'idsalon': idsalon,
+  //   };
+  //   var parameter = json.encode(paramData);
 
-    http
-        .post(main_variable.ipnumber + "/getidsalon",
-            headers: {"Content-Type": "application/json"}, body: parameter)
-        .then((res) {
-      var data = json.decode(res.body);
-      data = data[0]['status'];
-      print(res.body);
-      print(data.length);
+  //   http
+  //       .post(main_variable.ipnumber + "/getidsalon",
+  //           headers: {"Content-Type": "application/json"}, body: parameter)
+  //       .then((res) {
+  //     var data = json.decode(res.body);
+  //     data = data[0]['status'];
+  //     print(res.body);
+  //     print("getidsalon " + data.length.toString());
 
-      for (int i = 0; i < data.length; i++) {
-        ClassSalon databaru = new ClassSalon(
-          data[i]['id'].toString(),
-          data[i]['username'].toString(),
-          data[i]['namasalon'].toString(),
-          data[i]['alamat'].toString(),
-          data[i]['kota'].toString(),
-          data[i]['telp'].toString(),
-          data[i]['longitude'].toString(),
-          data[i]['latitude'].toString(),
-          data[i]['keterangan'].toString(),
-          data[i]['status'].toString(),
-        );
-        this.arrsalon1.add(databaru);
-      }
-      setState(() => this.arrsalon1 = arrsalon1);
-      setState(() => main_variable.idsalonlogin = arrsalon1[0].id.toString());
+  //     for (int i = 0; i < data.length; i++) {
+  //       ClassSalon databaru = new ClassSalon(
+  //         data[i]['id'].toString(),
+  //         data[i]['username'].toString(),
+  //         data[i]['namasalon'].toString(),
+  //         data[i]['alamat'].toString(),
+  //         data[i]['kota'].toString(),
+  //         data[i]['telp'].toString(),
+  //         data[i]['longitude'].toString(),
+  //         data[i]['latitude'].toString(),
+  //         data[i]['keterangan'].toString(),
+  //         data[i]['status'].toString(),
+  //       );
+  //       arrtemp.add(databaru);
+  //     }
+  //     print("object : " + main_variable.idsalonlogin);
+  //     setState(() => this.arrsalon1 = arrtemp);
+  //     setState(() => main_variable.idsalonlogin = arrsalon1[0].id.toString());
+  //     print("object1 : " + main_variable.idsalonlogin);
 
-      return arr;
-    }).catchError((err) {
-      print(err);
-    });
-  }
+  //     setState(() {
+  //       getFavorit();
+  //       getjadwalsalon();
+  //       // print("A");
+  //       // getlayanansalon();
+  //       // print("B");
+  //     });
 
-  Future<String> upadatesalon() async {
-    String base64Image = base64Encode(_image.readAsBytesSync()); //mimage
-    String fileName = _image.path.split("/").last; //mfile
+  //     return arrtemp;
+  //   }).catchError((err) {
+  //     print(err);
+  //   });
+  // }
 
-    Map paramData = {
-      'foto': myFoto.text,
-      'mfile': fileName,
-      'mimage': base64Image,
-    };
-    var parameter = json.encode(paramData);
-    http
-        .post(main_variable.ipnumber + "/upadatesalon",
-            headers: {"Content-Type": "application/json"}, body: parameter)
-        .then((res) {
-      print(res.body);
-      if (res.body.contains("sukses")) {
-        print("Berhasil Update Profile");
-      } else {
-        print("Update gagal");
-      }
-    }).catchError((err) {
-      print(err);
-    });
-    return "";
-  }
+  // Future<ClassLayanansalon> getlayanansalon() async {
+  //   List<ClassLayanansalon> arrtemp = new List();
+  //   Map paramData = {
+  //     'idsalon': main_variable.idsalonlogin,
+  //   };
+  //   var parameter = json.encode(paramData);
+
+  //   http
+  //       .post(main_variable.ipnumber + "/getlayanansalon",
+  //           headers: {"Content-Type": "application/json"}, body: parameter)
+  //       .then((res) {
+  //     var data = json.decode(res.body);
+  //     data = data[0]['status'];
+  //     print("cicak : " + data.toString());
+
+  //     for (int i = 0; i < data.length; i++) {
+  //       ClassLayanansalon databaru = new ClassLayanansalon(
+  //           data[i]['id'].toString(),
+  //           data[i]['idsalon'].toString(),
+  //           data[i]['username'].toString(),
+  //           data[i]['namalayanan'].toString(),
+  //           data[i]['peruntukan'].toString(),
+  //           data[i]['idkategori'].toString(),
+  //           data[i]['jenjangusia'].toString(),
+  //           data[i]['durasi'].toString(),
+  //           data[i]['deskripsi'].toString(),
+  //           data[i]['status'].toString(),
+  //           data[i]['hargapriadewasa'].toString(),
+  //           data[i]['hargawanitadewasa'].toString(),
+  //           data[i]['hargapriaanak'].toString(),
+  //           data[i]['hargawanitaanak'].toString(),
+  //           data[i]['jumlah_kursi'].toString(),
+  //           data[i]['keterlambatan_waktu'].toString(),
+  //           data[i]['foto'].toString());
+  //       arrtemp.add(databaru);
+  //       foto = main_variable.ipnumber + "/gambar/" + arrtemp[i].foto;
+  //     }
+
+  //     setState(() => this.arr1 = arrtemp);
+
+  //     return arrtemp;
+  //   }).catchError((err) {
+  //     print(err);
+  //   });
+  // }
 
   Future<ClassFavoritJoinSalonJoinUser> deletefav() async {
     Map paramData = {'idfavorit': idfavorit};
